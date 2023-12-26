@@ -1,0 +1,7 @@
+[font8x9]
+path = 'font8x9.png'
+type = 'font'
+grid_size    = '8x12'
+grid_padding = 1
+proportional = true
+line_height  = 9

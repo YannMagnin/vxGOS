@@ -1,0 +1,25 @@
+VXDEV_TOOLCHAIN_PREFIX     = 'aarch64-linux-gnu-'
+VXDEV_TOOLCHAIN_PROCESSOR  = 'aarch64'
+VXDEV_TOOLCHAIN_ENDIANNESS = 'little'
+VXDEV_CFLAGS = [
+    '-Wall',
+    '-Wextra',
+    '-D__SUPPORT_RASPI3B__',
+    '-D_FORTIFY_SOURCE=0',
+    '-ffreestanding',
+    '-nostdlib',
+    '-fPIE',
+    '-O3',
+    '-mlittle-endian',
+    '-march=armv8-a',
+    '-fstrict-volatile-bitfields',
+]
+VXDEV_LDFLAGS = [
+    '-static',
+    '-Wl,-Map=map',
+    '-Wl,--build-id=none',
+    '-Wl,--emit-relocs',
+]
+VXDEV_ASSETS = [
+    'font8x12',
+]

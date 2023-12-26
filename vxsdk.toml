@@ -1,0 +1,19 @@
+[project]
+name    = 'vxkernel'
+version = '0.7.0'
+target  = [
+    'fxcg50',
+    'fx9860',
+    'raspi3b',
+]
+
+
+[build]
+build = '/usr/bin/env python3 ./scripts/vxdev build'
+
+
+[fxcg50.dependencies]
+sh-elf-vhex = 'master@superh'
+
+[fx9860.dependencies]
+sh-elf-vhex = 'master@superh'

@@ -1,0 +1,20 @@
+[meta]
+description = "Casio's Fxcg50 calculator board"
+author      = 'Yann MAGNIN'
+
+[config]
+modules = [
+    'display',
+    'hypervisor',
+    'keyboard',
+    'kmalloc',
+    'timer',
+    'rtc',
+    'dma',
+    'usb',
+    'fs'
+]
+drivers = [
+    'screen/R61524',
+    'mpu/sh/sh7305'
+]

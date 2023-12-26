@@ -1,0 +1,17 @@
+[meta]
+description = "Fake board for the SDL2 support"
+author      = 'Yann MAGNIN'
+
+[config]
+modules = [
+    'display',
+    'hypervisor',
+    'timer',
+    'keyboard',
+    'dma',
+    'rtc',
+    'usb'
+]
+drivers = [
+    'mpu:common:sdl2'
+]

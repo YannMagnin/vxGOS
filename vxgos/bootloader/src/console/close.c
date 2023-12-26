@@ -1,0 +1,19 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include "bootloader/console.h"
+
+//---
+// Public
+//---
+
+/* console_close(): Uninitialize the terminal */
+int console_close(struct console *console)
+{
+    if (console == NULL)
+        return -1;
+    if (console->output.buffer.data != NULL)
+        free(console->output.buffer.data);
+    memset(console, 0x00, sizeof(struct console));
+    return 0;
+}

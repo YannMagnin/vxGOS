@@ -1,0 +1,16 @@
+[font8x12]
+path         = 'font8x12.png'
+type         = 'font'
+grid_size    = '8x12'
+grid_padding = 1
+grid_border  = 1
+proportional = false
+line_height  = 9
+
+[font3x5]
+path         = 'font3x5.png'
+type         = 'font'
+grid_size    = '3x5'
+grid_padding = 1
+proportional = false
+line_height  = 6

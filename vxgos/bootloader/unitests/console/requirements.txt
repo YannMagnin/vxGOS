@@ -1,0 +1,16 @@
+# covered file
+[c] src/console/open.c
+[c] src/console/close.c
+[c] src/console/buffer/output.c
+[c] src/console/buffer/input.c
+[c] src/console/buffer/line_discipline.c
+
+# dependencies
+[d] src/display/dtext.c
+[d] src/display/dline.c
+[d] src/display/dascii.c
+[d] src/display/dpixel.c
+[d] src/display/dclear.c
+[d] src/display/dupdate.c
+
+
