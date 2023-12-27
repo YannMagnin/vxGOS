@@ -1,0 +1,28 @@
+[tool.poetry]
+name        = 'vxGOS'
+version     = '0.8.0'
+description = 'Vhex operating system oriented game creation'
+repository  = 'https://github.com/YannMagnin/vxGOS.git'
+readme      = 'README.md'
+authors     = [
+    'Yann MAGNIN <yann.magnin@protonmail.com>',
+]
+packages    = [
+    { include = 'vxsdk', from = 'VxGOS' },
+]
+
+
+
+[tool.poetry.scripts]
+vxsdk   = 'vxsdk.cli:cli_entry'
+
+
+
+[tool.poetry.dependencies]
+python  = '>=3.8'
+click   = "8.1.*"
+
+[tool.poetry.dev-dependencies]
+pynvim  = "0.4.*"
+pylint  = "2.17.*"
+mypy    = "1.5.*"
