@@ -8,7 +8,7 @@ authors     = [
     'Yann MAGNIN <yann.magnin@protonmail.com>',
 ]
 packages    = [
-    { include = 'vxsdk', from = 'VxGOS' },
+    { include = 'vxsdk', from = 'vxGOS' },
 ]
 
 
@@ -19,10 +19,10 @@ vxsdk   = 'vxsdk.cli:cli_entry'
 
 
 [tool.poetry.dependencies]
-python  = '>=3.8'
+python  = '>=3.10'
 click   = "8.1.*"
 
 [tool.poetry.dev-dependencies]
-pynvim  = "0.4.*"
-pylint  = "2.17.*"
-mypy    = "1.5.*"
+pynvim  = "0.5.*"
+pylint  = "3.*"
+mypy    = "1.*"
