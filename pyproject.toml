@@ -19,8 +19,10 @@ vxsdk   = 'vxsdk.cli:cli_entry'
 
 
 [tool.poetry.dependencies]
-python  = '>=3.10'
-click   = "8.1.*"
+python      = '>=3.10'
+click       = "8.1.*"
+toml        = "0.10.*"
+types-toml  = "*"
 
 [tool.poetry.dev-dependencies]
 pynvim  = "0.5.*"

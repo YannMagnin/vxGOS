@@ -4,7 +4,7 @@ vxsdk.core.logger.log   - logger object abstraction
 __all__ = [
     'log',
 ]
-from typing import Any, Tuple
+from typing import Any, Tuple, NoReturn
 import sys
 import inspect
 
@@ -29,9 +29,9 @@ class Logger():
         self._indent_level      = 0
         self._indent_str        = '>>>>'
 
-    def __call__(self, **kwargs: Any) -> int:
+    def __call__(self, text: Any, **kwargs: Any) -> int:
         """ alias to log.user() """
-        return self.user(**kwargs)
+        return self.user(text, **kwargs)
 
     #---
     # Internal methods
@@ -78,11 +78,11 @@ class Logger():
         """ print notice log """
         return self._print(Logger.LOG_NOTICE, **kwargs)
 
-    def user(self, **kwargs: Any) -> int:
+    def user(self, text: Any, **kwargs: Any) -> int:
         """ print user log """
-        return self._print(Logger.LOG_USER, **kwargs)
+        return self._print(Logger.LOG_USER, text, **kwargs)
 
-    def warn(self, text: str, **kwargs: Any) -> int:
+    def warn(self, text: Any, **kwargs: Any) -> int:
         """ print warning log """
         return self._print(
             level   = Logger.LOG_WARN,
@@ -91,7 +91,7 @@ class Logger():
             **kwargs,
         )
 
-    def error(self, text: str, **kwargs: Any) -> int:
+    def error(self, text: Any, **kwargs: Any) -> int:
         """ print error log """
         return self._print(
             level   = Logger.LOG_ERR,
@@ -100,7 +100,7 @@ class Logger():
             **kwargs,
         )
 
-    def critical(self, text: str, **kwargs: Any) -> int:
+    def critical(self, text: Any, **kwargs: Any) -> int:
         """ print critical log """
         return self._print(
             level   = Logger.LOG_CRIT,
@@ -109,7 +109,7 @@ class Logger():
             **kwargs,
         )
 
-    def emergency(self, text: str, **kwargs: Any) -> None:
+    def emergency(self, text: Any, **kwargs: Any) -> NoReturn:
         """ print emergency log """
         self._print(
             level   = Logger.LOG_EMERG,
