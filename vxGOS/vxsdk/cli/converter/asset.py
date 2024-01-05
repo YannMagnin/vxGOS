@@ -4,8 +4,9 @@ vxsdk.cli.converter.asset   - SDK asset converter
 __all__ = [
     'vxsdk_cli_converter_asset_entry',
 ]
-import sys
+from typing import NoReturn
 from pathlib import Path
+import sys
 
 import click
 
@@ -58,7 +59,7 @@ def vxsdk_cli_converter_asset_entry(
     asset_prefix:   Path,
     endianness:     str,
     target:         str,
-) -> None:
+) -> NoReturn:
     """ Convert all asset files in project directory
 
     Convert all assets file in the asset directory. This part of the

@@ -5,9 +5,11 @@ __all__ = [
     'BoardException',
 ]
 
+from vxsdk.core.exception import SDKException
+
 #---
 # Public
 #---
 
-class BoardException(Exception):
+class BoardException(SDKException):
     """ Board exception class """

@@ -14,7 +14,8 @@ packages    = [
 
 
 [tool.poetry.scripts]
-vxsdk   = 'vxsdk.cli:cli_entry'
+vxsdk   = 'vxsdk.cli:vxsdk_cli_entry'
+vxboard = 'vxsdk.cli.board:vxsdk_cli_board_entry'
 
 
 

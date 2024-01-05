@@ -8,6 +8,7 @@ import click
 
 from vxsdk.cli.board.list import vxsdk_cli_board_list_entry
 from vxsdk.cli.board.init import vxsdk_cli_board_init_entry
+from vxsdk.cli.board.select import vxsdk_cli_board_select_entry
 
 #---
 # Public
@@ -18,6 +19,7 @@ from vxsdk.cli.board.init import vxsdk_cli_board_init_entry
     commands = [
         vxsdk_cli_board_list_entry,
         vxsdk_cli_board_init_entry,
+        vxsdk_cli_board_select_entry,
     ],
 )
 def vxsdk_cli_board_entry() -> None:

@@ -4,6 +4,7 @@ vxsdk.cli.board.list    - list all available board
 __all__ = [
     'vxsdk_cli_board_list_entry',
 ]
+from typing import NoReturn
 import sys
 
 import click
@@ -16,7 +17,7 @@ from vxsdk.core.board import board_manager_iterate
 #---
 
 @click.command('list')
-def vxsdk_cli_board_list_entry() -> None:
+def vxsdk_cli_board_list_entry() -> NoReturn:
     """ list all available boards
     """
     try:

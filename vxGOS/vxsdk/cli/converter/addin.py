@@ -4,9 +4,9 @@ vxsdk.cli.converter.addin   - vxGOS addin (application) converter
 __all__ = [
     'vxsdk_cli_converter_addin_entry',
 ]
-import sys
-from typing import Optional
+from typing import Optional, NoReturn
 from pathlib import Path
+import sys
 
 import click
 
@@ -66,7 +66,7 @@ def vxsdk_cli_converter_addin_entry(
     icon_path:      Optional[Path],
     output_path:    Optional[Path],
     version:        str,
-) -> None:
+) -> NoReturn:
     """ Convert binary file into Vhex OS application
     """
     try:
