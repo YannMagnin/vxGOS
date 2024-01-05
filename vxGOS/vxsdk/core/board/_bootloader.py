@@ -3,6 +3,7 @@ vxsdk.core.board._bootloader    - bootloader abstraction
 """
 __all__ = [
     'board_bootloader_initialise',
+    'board_bootloader_build',
 ]
 from typing import Dict, Any
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 from vxsdk.core.board._common import (
     board_common_initialise,
     board_common_load_compile_conf,
+    board_common_build,
 )
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BUILD,
@@ -49,4 +51,13 @@ def board_bootloader_initialise(board_name: str) -> None:
         prefix_src/'bootloader.ld',
         compile_conf,
         compile_file,
+    )
+
+def board_bootloader_build(prefix_build: Path) -> Path:
+    """ generate the ELF bootloader information
+    """
+    return board_common_build(
+        'bootloader',
+        prefix_build/'bootloader',
+        prefix_build/'bootloader/_build/',
     )

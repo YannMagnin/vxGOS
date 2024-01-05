@@ -4,11 +4,16 @@ vxsdk.core.board._cmake     - cmake abstraction
 __all__ = [
     'CMakeToolchainInfo',
     'cmake_generate_toolchain',
+    'cmake_generate_cmakefile',
+    'cmake_build',
 ]
 from typing import List
 from pathlib import Path
 from dataclasses import dataclass
+import subprocess
 import re
+
+from vxsdk.core.logger import log
 
 #---
 # Internals
@@ -86,11 +91,22 @@ def _cmake_file_update(file_pathname: Path, content: str) -> bool:
     file_pathname.parent.mkdir(parents=True, exist_ok=True)
     with open(file_pathname, 'x', encoding='ascii') as toolfile:
         toolfile.write(content)
+    (file_pathname.parent/'need_reconfig').touch()
     return True
+
+def _cmake_cmd_exec(cmd: str) -> None:
+    """ Popen wrapper
+    """
+    with subprocess.Popen(cmd.split()) as procinfo:
+        procinfo.wait()
+        if procinfo.returncode != 0:
+            log.emergency(f"Unable to execute CMake command '{cmd}'")
 
 #---
 # Public
 #---
+
+## dataclasses
 
 @dataclass
 class CMakeToolchainInfo():
@@ -107,6 +123,8 @@ class CMakeFileInfo():
     cflags:     List[str]
     ldflags:    List[str]
     libraries:  List[str]
+
+## functions
 
 def cmake_generate_toolchain(
     prefix_build: Path,
@@ -141,3 +159,14 @@ def cmake_generate_cmakefile(
     raw = re.sub('{VXSDK_BUILD_INCLUDES}',  str_hdrs,       raw)
     raw = re.sub('{VXSDK_BUILD_LIBS}',      str_libs,       raw)
     _cmake_file_update(prefix_build/'CMakeLists.txt', raw)
+
+def cmake_build(prefix_cmake: Path, prefix_build: Path) -> None:
+    """ perform build operation
+    """
+    if (prefix_cmake/'need_reconfig').exists():
+        _cmake_cmd_exec(
+            f"cmake -B {str(prefix_build)} -S {str(prefix_cmake)} "
+            f"-DCMAKE_TOOLCHAIN_FILE={str(prefix_cmake/'toolchain.cmake')}"
+        )
+        (prefix_cmake/'need_reconfig').unlink()
+    _cmake_cmd_exec(f"cmake --build {str(prefix_build)}")

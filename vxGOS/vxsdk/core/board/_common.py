@@ -4,9 +4,11 @@ vxsdk.board._common     - common handling (kernel,OS,bootloader)
 __all__ = [
     'board_common_load_compile_conf',
     'board_common_initialise',
+    'board_common_build',
 ]
 from typing import Dict, Any
 from pathlib import Path
+import shutil
 
 import toml
 
@@ -15,6 +17,7 @@ from vxsdk.core._config import CONFIG_SDK_PREFIX_SRCS
 from vxsdk.core.board._cmake import (
     cmake_generate_toolchain,
     cmake_generate_cmakefile,
+    cmake_build,
     CMakeToolchainInfo,
     CMakeFileInfo,
 )
@@ -75,3 +78,14 @@ def board_common_initialise(
             libraries   = compile_conf['toolchain']['libraries'],
         ),
     )
+
+def board_common_build(
+    project_name: str,
+    prefix_cmake: Path,
+    prefix_build: Path,
+) -> Path:
+    """ build the project and isolate the ELF file
+    """
+    cmake_build(prefix_cmake, prefix_build)
+    shutil.copy(prefix_build/project_name, prefix_cmake/project_name)
+    return prefix_build/project_name

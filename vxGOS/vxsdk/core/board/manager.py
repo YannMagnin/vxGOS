@@ -6,14 +6,19 @@ __all__ = [
     'board_manager_select_get',
     'board_manager_iterate',
     'board_manager_initialise',
+    'board_manager_build',
 ]
-from pathlib import Path
+from typing import Generator, Optional
 from dataclasses import dataclass
-from typing import Generator
+from pathlib import Path
+import os
 
 from vxsdk.core.logger import log
 from vxsdk.core.board.exception import BoardException
-from vxsdk.core.board._bootloader import board_bootloader_initialise
+from vxsdk.core.board._bootloader import (
+    board_bootloader_initialise,
+    board_bootloader_build,
+)
 #from vxsdk.core.board._kernel import board_kernel_initialise
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BOARDS,
@@ -82,3 +87,28 @@ def board_manager_initialise(board_name: str) -> None:
 #    board_kernel_initialise(board_name)
 #    board_os_initialise(board_name)
     board_manager_select(board_name)
+
+def board_manager_build(
+    project_target: Optional[str],
+    enable_verbose: bool,
+) -> None:
+    """ build projects
+    """
+    if not (selected := board_manager_select_get()):
+        raise BoardException('No board selected or configured, abord')
+    if enable_verbose:
+        os.environ['VERBOSE'] = "1"
+    if project_target:
+        {
+            'bootloader' : board_bootloader_build,
+            #'kernel'    : board_kernel_build,
+            #'os'        : board_os_build,
+        }[project_target](selected)
+        return
+    output_info = {
+        'bootloader' : board_bootloader_build(selected),
+#        'kernel'     : board_kernel_build(selected),
+#        'os'         : board_os_build(selected),
+    }
+    print(output_info)
+    # (todo) : generate final image
