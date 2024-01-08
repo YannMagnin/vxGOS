@@ -7,6 +7,7 @@ __all__ = [
 import click
 
 from vxsdk.cli.board import vxsdk_cli_board_entry
+from vxsdk.cli.converter import vxsdk_cli_converter_entry
 
 #---
 # Public
@@ -16,6 +17,7 @@ from vxsdk.cli.board import vxsdk_cli_board_entry
     'vxsdk',
     commands = [
         vxsdk_cli_board_entry,
+        vxsdk_cli_converter_entry,
     ],
 )
 def vxsdk_cli_entry() -> None:

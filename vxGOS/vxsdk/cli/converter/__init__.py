@@ -6,7 +6,7 @@ __all__ = [
 ]
 import click
 
-from vxsdk.cli.converter.addin import vxsdk_cli_converter_addin_entry
+from vxsdk.cli.converter.asset import vxsdk_cli_converter_asset_entry
 
 #---
 # Public
@@ -15,7 +15,7 @@ from vxsdk.cli.converter.addin import vxsdk_cli_converter_addin_entry
 @click.group(
     'conv',
     commands = [
-        vxsdk_cli_converter_addin_entry,
+        vxsdk_cli_converter_asset_entry,
     ],
 )
 def vxsdk_cli_converter_entry() -> None:

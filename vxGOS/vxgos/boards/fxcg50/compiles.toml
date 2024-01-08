@@ -28,6 +28,3 @@ libraries   = [
 
 [converter]
 endianness  = 'big'
-assets      = [
-    'font8x12',
-]
