@@ -9,6 +9,10 @@ from pathlib import Path
 
 from vxsdk.core.converter.asset import ConvAsset
 from vxsdk.core.converter._font.exception import ConvAssetFontException
+from vxsdk.core.converter._font._convert import font_convert_img_to_raw
+from vxsdk.core.converter._font._bootloader import (
+    font_bootloader_generate_source_file,
+)
 
 #---
 # Public
@@ -34,10 +38,12 @@ class ConvAssetFont(ConvAsset):
         self.is_proportional    = False
         self.line_height        = 0
         self.char_spacing       = 1
+        self.font_size          = 0
         self.glyph_size         = 0
         self.glyph_height       = 0
-        self.font_size          = 0
-        self.data: List[Any]    = []
+        self.glyph_count        = 0
+        self.glyph_props:   List[Any] = []
+        self.data:          List[Any] = []
         if 'charset' in config:
             if config['charset'] not in ['default', 'unicode']:
                 raise ConvAssetFontException(
@@ -84,7 +90,25 @@ class ConvAssetFont(ConvAsset):
     # Public methods
     #---
 
-    def generate(self, prefix_build: Path) -> Path:
+    def generate(
+        self,
+        prefix_build:   Path,
+        target:         str,
+        endianness:     str,
+    ) -> Path:
         """ generate C file
         """
-        raise ConvAssetFontException('generation Not implemented')
+        font_convert_img_to_raw(self)
+        content = {
+            'bootloader'    : font_bootloader_generate_source_file,
+            #'kernel'        : font_kernel_generate_source_file,
+        }[target](
+            self,
+            endianness,
+        )
+        cfile = prefix_build/f"_csources/{self.name}_vxfont.c"
+        cfile.parent.mkdir(parents=True, exist_ok=True)
+        cfile.touch(exist_ok=True)
+        with open(cfile, 'w', encoding='utf8') as outfile:
+            outfile.write(content)
+        return cfile

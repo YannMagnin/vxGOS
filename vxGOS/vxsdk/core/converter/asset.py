@@ -4,9 +4,10 @@ vxsdk.core.converter.asset  - asset abstraction
 __all__ = [
     'ConvAsset',
 ]
-from typing import Dict, Any, cast
+from typing import Dict, Any, Self, cast
 from pathlib import Path
 from abc import ABC, abstractmethod
+import re
 
 from vxsdk.core.converter.exception import ConverterException
 
@@ -17,6 +18,57 @@ from vxsdk.core.converter.exception import ConverterException
 class ConvAsset(ABC):
     """ common asset abstraction
     """
+    #---
+    # Factory magic
+    #---
+    _subclass_list: Dict[str,Any] = {}
+
+    def __init_subclass__(cls, /, **kwargs: Any) -> None:
+        """ register all subclass and perform aggressif check on the name
+        """
+        super().__init_subclass__(**kwargs)
+        if not (
+            info := re.match(
+                "(?P<cls>^ConvAsset(?P<key>[A-Z][a-z]+)$)",
+                cls.__name__,
+            )
+        ):
+            raise ConverterException(
+                f"Subclass name '{cls.__name__}' is not valid, abord",
+            )
+        cls._subclass_list[info['key'].lower()] = cls
+
+    @classmethod
+    def factory_load(
+        cls,
+        asset_name: str,
+        asset_conf: Dict[str,Any],
+        asset_prefix: Path,
+    ) -> Self:
+        """ load appropriate class based on the type configuratio field
+        """
+        if 'type' not in asset_conf:
+            raise ConverterException(
+                f"[{asset_name}] missing type information"
+            )
+        if asset_conf['type'] in cls._subclass_list:
+            return cast(
+                Self,
+                cls._subclass_list[asset_conf['type']](
+                    asset_name,
+                    asset_conf,
+                    asset_prefix,
+                ),
+            )
+        raise ConverterException(
+            f"[{asset_name}] asset type '{asset_conf['type']}' "
+            'is not known'
+        )
+
+    #---
+    # Object magic
+    #---
+
     def __init__(
         self,
         name: str,
@@ -67,7 +119,12 @@ class ConvAsset(ABC):
     #---
 
     @abstractmethod
-    def generate(self, prefix_build: Path) -> Path:
+    def generate(
+        self,
+        prefix_build: Path,
+        target:         str,
+        endianness:     str,
+    ) -> Path:
         """
         generate the C file assiciated to the asset and return the path
         of the said generated C file

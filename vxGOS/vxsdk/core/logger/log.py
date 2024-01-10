@@ -66,17 +66,17 @@ class Logger():
     # Public methods
     #---
 
-    def debug(self, **kwargs: Any) -> int:
+    def debug(self, text: Any, **kwargs: Any) -> int:
         """ print debug log """
-        return self._print(Logger.LOG_DEBUG, **kwargs)
+        return self._print(Logger.LOG_DEBUG, text, **kwargs)
 
-    def info(self, **kwargs: Any) -> int:
+    def info(self, text: Any, **kwargs: Any) -> int:
         """ print info log """
-        return self._print(Logger.LOG_INFO, **kwargs)
+        return self._print(Logger.LOG_INFO, text, **kwargs)
 
-    def notice(self, **kwargs: Any) -> int:
+    def notice(self, text: Any, **kwargs: Any) -> int:
         """ print notice log """
-        return self._print(Logger.LOG_NOTICE, **kwargs)
+        return self._print(Logger.LOG_NOTICE, text, **kwargs)
 
     def user(self, text: Any, **kwargs: Any) -> int:
         """ print user log """

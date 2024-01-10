@@ -3,16 +3,15 @@ vxsdk.core.converter.manager    - converter manager
 """
 __all__ = [
     'converter_manager_iterate',
+    'converter_manager_generate',
 ]
-from typing import Generator
+from typing import Generator, List
 from pathlib import Path
 
 import toml
 
 from vxsdk.core.logger import log
 from vxsdk.core.converter.asset import ConvAsset
-from vxsdk.core.converter._image import ConvAssetImage
-from vxsdk.core.converter._font import ConvAssetFont
 from vxsdk.core.converter.exception import ConverterException
 
 #---
@@ -28,22 +27,32 @@ def converter_manager_iterate(
         try:
             for item in toml.load(convfile).items():
                 try:
-                    if 'type' not in item[1]:
-                        raise ConverterException(
-                            f"[{item[0]}] missing type information"
-                        )
-                    if item[1]['type'] == 'font':
-                        yield ConvAssetFont(item[0], item[1], prefix_asset)
-                        continue
-                    if item[1]['type'] == 'image':
-                        yield ConvAssetImage(item[0], item[1], prefix_asset)
-                        continue
-                    raise ConverterException(
-                        f"[{item[0]}] asset type '{item[1]['type']}' "
-                        'is not known'
+                    yield ConvAsset.factory_load(
+                        item[0],
+                        item[1],
+                        prefix_asset,
                     )
                 except ConverterException as err:
                     log.error(err)
                     continue
         except toml.TomlDecodeError as err:
             log.error(err)
+
+def converter_manager_generate(
+    prefix_asset:   Path,
+    prefix_build:   Path,
+    project_target: str,
+    endianness:     str,
+) -> List[Path]:
+    """ generate all asset C files
+    """
+    asset_outfile_list: List[Path] = []
+    for asset in converter_manager_iterate(prefix_asset):
+        asset_outfile_list.append(
+            asset.generate(
+                prefix_build,
+                project_target,
+                endianness,
+            ),
+        )
+    return asset_outfile_list

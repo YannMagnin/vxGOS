@@ -20,10 +20,12 @@ vxboard = 'vxsdk.cli.board:vxsdk_cli_board_entry'
 
 
 [tool.poetry.dependencies]
-python      = '>=3.10'
-click       = "8.1.*"
-toml        = "0.10.*"
-types-toml  = "*"
+python          = '>=3.11'
+click           = "8.1.*"
+toml            = "0.10.*"
+pillow          = "10.2.*"
+types-toml      = "*"
+types-pillow    = "*"
 
 [tool.poetry.dev-dependencies]
 pynvim  = "0.5.*"

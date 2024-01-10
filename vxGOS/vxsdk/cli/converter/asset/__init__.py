@@ -9,6 +9,9 @@ import click
 from vxsdk.cli.converter.asset.list import (
     vxsdk_cli_converter_asset_list_entry,
 )
+from vxsdk.cli.converter.asset.build import (
+    vxsdk_cli_converter_asset_build_entry,
+)
 
 #---
 # Public
@@ -18,6 +21,7 @@ from vxsdk.cli.converter.asset.list import (
     'assets',
     commands = [
         vxsdk_cli_converter_asset_list_entry,
+        vxsdk_cli_converter_asset_build_entry,
     ]
 )
 def vxsdk_cli_converter_asset_entry() -> None:
