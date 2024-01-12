@@ -98,10 +98,10 @@ class ConvAssetFont(ConvAsset):
     ) -> Path:
         """ generate C file
         """
+        super().generate(prefix_build, target, endianness)
         font_convert_img_to_raw(self)
         content = {
             'bootloader'    : font_bootloader_generate_source_file,
-            #'kernel'        : font_kernel_generate_source_file,
         }[target](
             self,
             endianness,

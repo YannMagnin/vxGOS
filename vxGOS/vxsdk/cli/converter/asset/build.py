@@ -11,7 +11,10 @@ import sys
 import click
 
 from vxsdk.core.exception import SDKException
-from vxsdk.core.converter.manager import converter_manager_generate
+from vxsdk.core.converter.manager import (
+    converter_manager_generate,
+    converter_manager_load_compconf,
+)
 
 #---
 # Public
@@ -67,11 +70,25 @@ from vxsdk.core.converter.manager import converter_manager_generate
         case_sensitive  = False,
     )
 )
+@click.option(
+    '-c', '--compile', 'compconf_file',
+    required    = True,
+    metavar     = 'PREFIX_COMPILES',
+    help        = 'compiles.toml file path',
+    type        = click.Path(
+        exists          = False,
+        file_okay       = True,
+        dir_okay        = False,
+        path_type       = Path,
+        resolve_path    = True,
+    )
+)
 def vxsdk_cli_converter_asset_build_entry(
     prefix_asset:   Path,
     prefix_build:   Path,
     project_target: str,
     endianness:     str,
+    compconf_file:  Path,
 ) -> NoReturn:
     """ build asset
     """
@@ -81,6 +98,7 @@ def vxsdk_cli_converter_asset_build_entry(
             prefix_build,
             project_target,
             endianness,
+            converter_manager_load_compconf(compconf_file),
         )
         sys.exit(0)
     except SDKException as err:

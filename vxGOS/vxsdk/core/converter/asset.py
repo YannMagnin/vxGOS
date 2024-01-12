@@ -129,3 +129,14 @@ class ConvAsset(ABC):
         generate the C file assiciated to the asset and return the path
         of the said generated C file
         """
+        if endianness not in ['little', 'big']:
+            raise ConverterException(
+                "Not valid endianness, should be 'little' or 'big' "
+                f"(get '{endianness}')"
+            )
+        if target not in ['bootloader', 'kernel', 'os']:
+            raise ConverterException(
+                "No valid target, should be 'bootloader', 'kernel' or 'os' "
+                f"(get '{target}')"
+            )
+        return Path.cwd()
