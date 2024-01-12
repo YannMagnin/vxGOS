@@ -4,7 +4,7 @@ vxsdk.core.converter.asset  - asset abstraction
 __all__ = [
     'ConvAsset',
 ]
-from typing import Dict, Any, Self, cast
+from typing import Dict, Any, Self, Tuple, cast
 from pathlib import Path
 from abc import ABC, abstractmethod
 import re
@@ -124,7 +124,7 @@ class ConvAsset(ABC):
         prefix_build: Path,
         target:         str,
         endianness:     str,
-    ) -> Path:
+    ) -> Tuple[Path,bool]:
         """
         generate the C file assiciated to the asset and return the path
         of the said generated C file
@@ -139,4 +139,4 @@ class ConvAsset(ABC):
                 "No valid target, should be 'bootloader', 'kernel' or 'os' "
                 f"(get '{target}')"
             )
-        return Path.cwd()
+        return (prefix_build, False)

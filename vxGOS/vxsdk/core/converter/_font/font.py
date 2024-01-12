@@ -4,7 +4,7 @@ vxsdk.core.converter._font.font     - font asset abstraction
 __all__ = [
         'ConvAssetFont',
         ]
-from typing import Dict, List, Any
+from typing import Dict, List, Tuple, Any
 from pathlib import Path
 
 from vxsdk.core.converter.asset import ConvAsset
@@ -13,6 +13,7 @@ from vxsdk.core.converter._font._convert import font_convert_img_to_raw
 from vxsdk.core.converter._font._bootloader import (
     font_bootloader_generate_source_file,
 )
+from vxsdk.core._utils import utils_file_update
 
 #---
 # Public
@@ -95,8 +96,8 @@ class ConvAssetFont(ConvAsset):
         prefix_build:   Path,
         target:         str,
         endianness:     str,
-    ) -> Path:
-        """ generate C file
+    ) -> Tuple[Path,bool]:
+        """ generate C file and return the path and if need a build
         """
         super().generate(prefix_build, target, endianness)
         font_convert_img_to_raw(self)
@@ -107,8 +108,4 @@ class ConvAssetFont(ConvAsset):
             endianness,
         )
         cfile = prefix_build/f"_csources/{self.name}_vxfont.c"
-        cfile.parent.mkdir(parents=True, exist_ok=True)
-        cfile.touch(exist_ok=True)
-        with open(cfile, 'w', encoding='utf8') as outfile:
-            outfile.write(content)
-        return cfile
+        return (cfile, utils_file_update(cfile, content))

@@ -78,18 +78,20 @@ def converter_manager_generate(
         raise ConverterException(
             'Missing converter endianness information in compiles.toml'
         )
+    need_build = 0
     asset_outfile_list: List[Path] = []
     for asset in converter_manager_iterate(prefix_asset):
-        asset_outfile_list.append(
-            asset.generate(
-                prefix_build,
-                project_target,
-                compconf['converter']['endianness'],
-            ),
+        asset_info = asset.generate(
+            prefix_build,
+            project_target,
+            compconf['converter']['endianness'],
         )
+        asset_outfile_list.append(asset_info[0])
+        need_build += asset_info[1]
     return converter_cmake_build(
         prefix_build,
         prefix_include,
         compconf,
         asset_outfile_list,
+        bool(need_build),
     )

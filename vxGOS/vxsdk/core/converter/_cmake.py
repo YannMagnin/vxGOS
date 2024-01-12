@@ -6,11 +6,10 @@ __all__ = [
 ]
 from typing import Dict, Any, List, Optional
 from pathlib import Path
-import subprocess
 import shutil
 import re
 
-from vxsdk.core.logger import log
+from vxsdk.core._utils import utils_file_update, utils_cmd_exec
 
 #---
 # Internals
@@ -20,7 +19,7 @@ _CMAKE_TOOLCHAIN_TEMPLATE = """
 # generated CMake toolchain file
 # all modification to this file will be automatically removed
 
-set(CMAKE_SYSTEM_NAME Vhex)
+set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_SYSTEM_PROCESSOR {VXSDK_TOOLCHAIN_PROCESSOR})
 
@@ -74,31 +73,6 @@ add_library(assets ${VXSDK_PROJ_SOURCES})
 # Internals
 #---
 
-## helpers
-
-def _cmake_file_update(file_pathname: Path, content: str) -> bool:
-    """ check if the file need to be recreated
-    """
-    if file_pathname.exists():
-        with open(file_pathname, 'r', encoding='ascii') as cmakefile:
-            if cmakefile.read() == content:
-                return False
-        file_pathname.unlink()
-    file_pathname.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_pathname, 'x', encoding='ascii') as toolfile:
-        toolfile.write(content)
-    return True
-
-def _cmake_cmd_exec(cmd: str) -> None:
-    """ Popen wrapper
-    """
-    with subprocess.Popen(cmd.split()) as procinfo:
-        procinfo.wait()
-        if procinfo.returncode != 0:
-            log.emergency(f"Unable to execute CMake command '{cmd}'")
-
-## generators
-
 def _converter_cmake_generate_toolchain(
     prefix_build: Path,
     compile_conf: Dict[str,Any],
@@ -110,7 +84,7 @@ def _converter_cmake_generate_toolchain(
     raw = _CMAKE_TOOLCHAIN_TEMPLATE
     raw = re.sub('{VXSDK_TOOLCHAIN_PROCESSOR}', conf_processor, raw)
     raw = re.sub('{VXSDK_TOOLCHAIN_PREFIX}',    conf_toolchain, raw)
-    return _cmake_file_update(prefix_build/'toolchain.cmake', raw)
+    return utils_file_update(prefix_build/'toolchain.cmake', raw)
 
 def _converter_cmake_generate_cmakelist(
     prefix_build:   Path,
@@ -129,7 +103,7 @@ def _converter_cmake_generate_cmakelist(
     raw = re.sub('{VXSDK_BUILD_LDFLAGS}',   str_ldflags,    raw)
     raw = re.sub('{VXSDK_SOURCE_FILES}',    str_srcs,       raw)
     raw = re.sub('{VXSDK_BUILD_INCLUDES}',  str_hdrs,       raw)
-    return _cmake_file_update(prefix_build/'CMakeLists.txt', raw)
+    return utils_file_update(prefix_build/'CMakeLists.txt', raw)
 
 #---
 # Public
@@ -140,6 +114,7 @@ def converter_cmake_build(
     prefix_include:     Path,
     compconf:           Dict[str,Any],
     asset_outfile_list: List[Path],
+    need_build:         bool
 ) -> Optional[Path]:
     """ build the assets library using cmake and return the library
     """
@@ -154,14 +129,16 @@ def converter_cmake_build(
         compconf,
     )
     if new_toolchain or new_cmakelist:
-        _cmake_cmd_exec(
+        utils_cmd_exec(
             f"cmake -B {str(prefix_build/'_build')} "
             f"-S {str(prefix_build)} "
             f"-DCMAKE_TOOLCHAIN_FILE={str(prefix_build/'toolchain.cmake')}"
         )
-    _cmake_cmd_exec(f"cmake --build {str(prefix_build/'_build')}")
-    shutil.copy(
-        prefix_build/'_build/libassets.a',
-        prefix_build/'libassets.a',
-    )
+        need_build = True
+    if need_build:
+        utils_cmd_exec(f"cmake --build {str(prefix_build/'_build')}")
+        shutil.copy(
+            prefix_build/'_build/libassets.a',
+            prefix_build/'libassets.a',
+        )
     return prefix_build/'libassets.a'
