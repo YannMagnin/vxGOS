@@ -9,7 +9,7 @@ from pathlib import Path
 from dataclasses import dataclass
 import re
 
-from vxsdk.core._utils import utils_file_update, utils_cmd_exec
+from vxsdk.core.utils import utils_file_update, utils_cmd_exec
 
 #---
 # Internals

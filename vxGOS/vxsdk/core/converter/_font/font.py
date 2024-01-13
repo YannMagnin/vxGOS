@@ -13,7 +13,7 @@ from vxsdk.core.converter._font._convert import font_convert_img_to_raw
 from vxsdk.core.converter._font._bootloader import (
     font_bootloader_generate_source_file,
 )
-from vxsdk.core._utils import utils_file_update
+from vxsdk.core.utils import utils_file_update
 
 #---
 # Public

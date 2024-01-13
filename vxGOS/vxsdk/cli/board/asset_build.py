@@ -14,7 +14,7 @@ from vxsdk.core.exception import SDKException
 from vxsdk.core.converter.manager import converter_manager_generate
 from vxsdk.core.board.manager import board_manager_select_get
 from vxsdk.core._config import CONFIG_SDK_PREFIX_SRCS
-from vxsdk.core._utils import utils_compile_conf_load
+from vxsdk.core.utils import utils_compile_conf_load
 
 #---
 # Public

@@ -7,7 +7,7 @@ __all__ = [
 from typing import Dict, Any, List
 from pathlib import Path
 
-from vxsdk.core._utils import utils_cmake_build
+from vxsdk.core.utils import utils_cmake_build
 
 #---
 # Internals

@@ -7,7 +7,7 @@ __all__ = [
 from typing import Dict, Any
 from pathlib import Path
 
-from vxsdk.core._utils import utils_cmake_build
+from vxsdk.core.utils import utils_cmake_build
 
 #---
 # Internals
@@ -66,7 +66,7 @@ def board_cmake_build(
 ) -> Path:
     """ perform build operation
     """
-    return utils_cmake_build(
+    utils_cmake_build(
         project_name,
         prefix_build,
         compile_conf,
@@ -74,3 +74,4 @@ def board_cmake_build(
         linker_path,
         _BOARD_GENERIC_CMAKE_TEMPLATE,
     )
+    return prefix_build/f"_build/{project_name}"

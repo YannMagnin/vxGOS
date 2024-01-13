@@ -8,10 +8,11 @@ __all__ = [
     'board_manager_initialise',
     'board_manager_build',
 ]
-from typing import Generator, Optional
+from typing import Generator, Optional, Dict, Any
 from dataclasses import dataclass
 from pathlib import Path
 import os
+import sys
 
 from vxsdk.core.logger import log
 from vxsdk.core.board.exception import BoardException
@@ -24,6 +25,38 @@ from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BOARDS,
     CONFIG_SDK_PREFIX_BUILD,
 )
+
+#---
+# Internals
+#---
+
+def _board_manager_load_generator(board: str) -> Dict[str,Any]:
+    """ load the `board/generator.py`
+    """
+    try:
+        sys.path.append(str(CONFIG_SDK_PREFIX_BOARDS/board))
+        mod = __import__(
+            name        = 'generator',
+            fromlist    = [
+                'generate_aslr_blob',
+                'generate_final_image',
+            ],
+        )
+        sys.path.pop()
+        error_base_str = \
+            f"{board} : `vxgos/board/{board}/generate.py` do not exposes"
+        if not hasattr(mod, 'generate_aslr_blob'):
+            log.emergency(f"{error_base_str} : `generate_aslr_blob()`")
+        if not hasattr(mod, 'generate_final_image'):
+            log.emergency(f"{error_base_str} : `generate_final_image()`")
+        return {
+            'alsr'  : mod.generate_aslr_blob,
+            'image' : mod.generate_final_image,
+        }
+    except ImportError:
+        log.emergency(
+            f"Unable to aquire the `vxgos/board/{board}/generator.py` script"
+        )
 
 #---
 # Public
@@ -94,21 +127,27 @@ def board_manager_build(
 ) -> None:
     """ build projects
     """
-    if not (selected := board_manager_select_get()):
+    if not (board := board_manager_select_get()):
         raise BoardException('No board selected or configured, abord')
     if enable_verbose:
         os.environ['VERBOSE'] = "1"
+    generator = _board_manager_load_generator(board.name)
     if project_target:
         {
             'bootloader' : board_bootloader_build,
             #'kernel'    : board_kernel_build,
             #'os'        : board_os_build,
-        }[project_target](selected.name)
+        }[project_target](board.name, generator)
         return
-    output_info = {
-        'bootloader' : board_bootloader_build(selected.name),
-#        'kernel'     : board_kernel_build(selected),
-#        'os'         : board_os_build(selected),
-    }
-    print(output_info)
-    # (todo) : generate final image
+    file = (
+        board_bootloader_build(board.name, generator),
+        None,
+        None,
+    )
+    log.user('[+] generate final image...')
+    generator['image'](
+        board,
+        file[0],
+        file[1],
+        file[2],
+    )

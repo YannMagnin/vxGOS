@@ -9,8 +9,9 @@ from typing import Dict, Any
 from pathlib import Path
 
 from vxsdk.core.logger import log
+from vxsdk.core.board._aslr import board_aslr_generate
 from vxsdk.core.converter.manager import converter_manager_generate
-from vxsdk.core._utils import utils_compile_conf_load
+from vxsdk.core.utils import utils_compile_conf_load
 from vxsdk.core.board._cmake import board_cmake_build
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BUILD,
@@ -47,7 +48,10 @@ def board_bootloader_initialise(board_name: str) -> None:
     prefix_build = CONFIG_SDK_PREFIX_BUILD/f"{board_name}/bootloader"
     prefix_build.mkdir(parents=True, exist_ok=True)
 
-def board_bootloader_build(board_name: str) -> Path:
+def board_bootloader_build(
+    board_name: str,
+    generator:  Dict[str,Any],
+) -> Path:
     """ generate the ELF bootloader information
     """
     log.user('[+] preliminary checks...')
@@ -70,10 +74,17 @@ def board_bootloader_build(board_name: str) -> Path:
         f"-L{str(asset_library.parent)}",
     )
     log.user('[+] building bootloader...')
-    return board_cmake_build(
+    bootloader_elf = board_cmake_build(
         'bootloader',
         prefix_build,
         compile_conf,
         compile_file,
         prefix_src/'bootloader.ld',
+    )
+    log.user('[+] construct the bootloader ALSR blob...')
+    return board_aslr_generate(
+        'bootloader',
+        prefix_build,
+        bootloader_elf,
+        generator,
     )
