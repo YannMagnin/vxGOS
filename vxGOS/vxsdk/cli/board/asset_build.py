@@ -13,8 +13,8 @@ import click
 from vxsdk.core.exception import SDKException
 from vxsdk.core.converter.manager import converter_manager_generate
 from vxsdk.core.board.manager import board_manager_select_get
-from vxsdk.core.board._common import board_common_load_compile_conf
 from vxsdk.core._config import CONFIG_SDK_PREFIX_SRCS
+from vxsdk.core._utils import utils_compile_conf_load
 
 #---
 # Public
@@ -48,7 +48,9 @@ def vxsdk_cli_board_asset_build_entry(
             raise SDKException('No board selected, abord')
         if enable_verbose:
             os.environ['VERBOSE'] = "1"
-        compconf = board_common_load_compile_conf(board.name)
+        compconf = utils_compile_conf_load(
+            CONFIG_SDK_PREFIX_SRCS/f"boards/{board.name}/compiles.toml",
+        )
         if not (
             asset_lib_path := converter_manager_generate(
                 CONFIG_SDK_PREFIX_SRCS/f"{project}/assets/",

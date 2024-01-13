@@ -103,10 +103,10 @@ def board_manager_build(
             'bootloader' : board_bootloader_build,
             #'kernel'    : board_kernel_build,
             #'os'        : board_os_build,
-        }[project_target](selected)
+        }[project_target](selected.name)
         return
     output_info = {
-        'bootloader' : board_bootloader_build(selected),
+        'bootloader' : board_bootloader_build(selected.name),
 #        'kernel'     : board_kernel_build(selected),
 #        'os'         : board_os_build(selected),
     }

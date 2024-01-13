@@ -6,7 +6,7 @@ __all__ = [
     'converter_manager_generate',
     'converter_manager_load_compconf',
 ]
-from typing import Optional, Generator, Dict, Any, List
+from typing import Generator, Dict, Any, List
 from pathlib import Path
 
 import toml
@@ -67,7 +67,7 @@ def converter_manager_generate(
     prefix_build:   Path,
     project_target: str,
     compconf:       Dict[str,Any],
-) -> Optional[Path]:
+) -> Path:
     """ generate all asset C files
     """
     if 'converter' not in compconf:
@@ -88,10 +88,11 @@ def converter_manager_generate(
         )
         asset_outfile_list.append(asset_info[0])
         need_build += asset_info[1]
+    if need_build == 0:
+        return prefix_build/'_build/libassets.a'
     return converter_cmake_build(
         prefix_build,
         prefix_include,
         compconf,
         asset_outfile_list,
-        bool(need_build),
     )
