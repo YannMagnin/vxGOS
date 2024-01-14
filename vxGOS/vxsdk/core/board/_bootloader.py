@@ -11,7 +11,6 @@ from pathlib import Path
 from vxsdk.core.logger import log
 from vxsdk.core.board._aslr import board_aslr_generate
 from vxsdk.core.converter.manager import converter_manager_generate
-from vxsdk.core.utils import utils_compile_conf_load
 from vxsdk.core.board._cmake import board_cmake_build
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BUILD,
@@ -39,27 +38,22 @@ def _bootloader_find_srcs(prefix: Path, board_name: str) -> Dict[str,Any]:
 # Public
 #---
 
-def board_bootloader_initialise(board_name: str) -> None:
+def board_bootloader_initialise(board_name: str, _: Any) -> None:
     """ initialise the build information needed for the bootloader
     """
-    utils_compile_conf_load(
-        CONFIG_SDK_PREFIX_SRCS/f"boards/{board_name}/compiles.toml",
-    )
     prefix_build = CONFIG_SDK_PREFIX_BUILD/f"{board_name}/bootloader"
     prefix_build.mkdir(parents=True, exist_ok=True)
 
 def board_bootloader_build(
-    board_name: str,
-    generator:  Dict[str,Any],
+    board_name:     str,
+    board_config:   Dict[str,Any],
+    generator:      Dict[str,Any],
 ) -> Path:
     """ generate the ELF bootloader information
     """
     log.user('[+] preliminary checks...')
     prefix_build = CONFIG_SDK_PREFIX_BUILD/f"{board_name}/bootloader"
     prefix_src   = CONFIG_SDK_PREFIX_SRCS/'bootloader'
-    compile_conf = utils_compile_conf_load(
-        CONFIG_SDK_PREFIX_SRCS/f"boards/{board_name}/compiles.toml",
-    )
     compile_file = _bootloader_find_srcs(prefix_src, board_name)
     log.user('[+] building assets...')
     asset_library = converter_manager_generate(
@@ -67,17 +61,17 @@ def board_bootloader_build(
         CONFIG_SDK_PREFIX_SRCS/'bootloader/include/',
         prefix_build/'_assets/',
         'bootloader',
-        compile_conf,
+        board_config,
     )
-    compile_conf['toolchain']['libraries'].insert(0, '-lassets')
-    compile_conf['toolchain']['ldflags'].append(
+    board_config['toolchain']['libraries'].insert(0, '-lassets')
+    board_config['toolchain']['ldflags'].append(
         f"-L{str(asset_library.parent)}",
     )
     log.user('[+] building bootloader...')
     bootloader_elf = board_cmake_build(
         'bootloader',
         prefix_build,
-        compile_conf,
+        board_config,
         compile_file,
         prefix_src/'bootloader.ld',
     )

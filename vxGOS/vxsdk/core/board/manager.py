@@ -16,6 +16,7 @@ import sys
 
 from vxsdk.core.logger import log
 from vxsdk.core.board.exception import BoardException
+from vxsdk.core.board._config import board_config_load
 from vxsdk.core.board._bootloader import (
     board_bootloader_initialise,
     board_bootloader_build,
@@ -24,6 +25,7 @@ from vxsdk.core.board._bootloader import (
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BOARDS,
     CONFIG_SDK_PREFIX_BUILD,
+    CONFIG_SDK_PREFIX_SRCS,
 )
 
 #---
@@ -71,6 +73,13 @@ class BoardIterInfo():
     is_config:  bool
     name:       str
 
+@dataclass
+class BoardSelected():
+    """ return board selected information """
+    name:           str
+    prefix_build:   Path
+    prefix_board:   Path
+
 ## functions
 
 def board_manager_select(board_name: str) -> None:
@@ -85,12 +94,17 @@ def board_manager_select(board_name: str) -> None:
     selected.symlink_to(CONFIG_SDK_PREFIX_BUILD/board_name)
     print(f"Selecting board '{board_name}'")
 
-def board_manager_select_get() -> Path|None:
+def board_manager_select_get() -> BoardSelected|None:
     """ return the selected board
     """
     if not (selected := CONFIG_SDK_PREFIX_BUILD/'SELECT').exists():
         return None
-    return selected.resolve()
+    selected = selected.resolve()
+    return BoardSelected(
+        name            = selected.name,
+        prefix_build    = selected,
+        prefix_board    = CONFIG_SDK_PREFIX_SRCS/f"boards/{selected.name}",
+    )
 
 def board_manager_iterate() -> Generator[BoardIterInfo,None,None]:
     """ iterate over all boards
@@ -104,11 +118,12 @@ def board_manager_iterate() -> Generator[BoardIterInfo,None,None]:
             is_config   = False,
             name        = board.name,
         )
-        conf_board_prefix = CONFIG_SDK_PREFIX_BUILD/board.name
-        if conf_board_prefix.exists():
+        board_prefix_build = CONFIG_SDK_PREFIX_BUILD/board.name
+        if board_prefix_build.exists():
             board_info.is_config = True
-        if conf_board_prefix == board_manager_select_get():
-            board_info.is_select = True
+        if (selected := board_manager_select_get()):
+            if board_prefix_build == selected.prefix_build:
+                board_info.is_select = True
         yield board_info
 
 def board_manager_initialise(board_name: str) -> None:
@@ -116,9 +131,12 @@ def board_manager_initialise(board_name: str) -> None:
     """
     if not (CONFIG_SDK_PREFIX_BOARDS/board_name).exists():
         raise BoardException(f"board '{board_name}' does not exists")
-    board_bootloader_initialise(board_name)
-#    board_kernel_initialise(board_name)
-#    board_os_initialise(board_name)
+    board_config = board_config_load(
+        CONFIG_SDK_PREFIX_SRCS/f"boards/{board_name}/config.toml",
+    )
+    board_bootloader_initialise(board_name, board_config)
+    #board_kernel_initialise(board_name, board_config)
+    #board_os_initialise(board_name, board_config)
     board_manager_select(board_name)
 
 def board_manager_build(
@@ -131,22 +149,23 @@ def board_manager_build(
         raise BoardException('No board selected or configured, abord')
     if enable_verbose:
         os.environ['VERBOSE'] = "1"
+    board_config = board_config_load(board.prefix_board/'config.toml')
     generator = _board_manager_load_generator(board.name)
     if project_target:
         {
             'bootloader' : board_bootloader_build,
             #'kernel'    : board_kernel_build,
             #'os'        : board_os_build,
-        }[project_target](board.name, generator)
+        }[project_target](board.name, board_config, generator)
         return
     file = (
-        board_bootloader_build(board.name, generator),
+        board_bootloader_build(board.name, board_config, generator),
         None,
         None,
     )
     log.user('[+] generate final image...')
     generator['image'](
-        board,
+        board.prefix_build,
         file[0],
         file[1],
         file[2],

@@ -1,9 +1,9 @@
 
 """
-vxsdk.core._utils.compile_conf  - `compiles.toml` helper
+vxsdk.core.board._config    - `config.toml` helper
 """
 __all__ = [
-    'utils_compile_conf_load',
+    'board_config_load',
 ]
 from typing import Dict, Any
 from pathlib import Path
@@ -16,7 +16,7 @@ from vxsdk.core.logger import log
 # Public
 #---
 
-def utils_compile_conf_load(compile_conf_path: Path) -> Dict[str,Any]:
+def board_config_load(compile_conf_path: Path) -> Dict[str,Any]:
     """ loading and aggressive check for compiles.toml file
     """
     if not compile_conf_path.exists():
