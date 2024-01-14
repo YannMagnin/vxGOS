@@ -1,7 +1,8 @@
-VXDEV_TOOLCHAIN_PREFIX = 'sh-elf-vhex-'
-VXDEV_TOOLCHAIN_PROCESSOR = 'sh'
-VXDEV_TOOLCHAIN_ENDIANNESS = 'big'
-VXDEV_CFLAGS = [
+[toolchain]
+prefix      = 'sh-elf-vhex-'
+processor   = 'sh'
+endianness  = 'big'
+cflags      = [
     '-Wall',
     '-Wextra',
     '-D__SUPPORT_FX9860__',
@@ -9,20 +10,18 @@ VXDEV_CFLAGS = [
     '-ffreestanding',
     '-nostdlib',
     '-fPIE',
-    '-O1',
+    '-O3',
     '-mb',
     '-m4-nofpu',
+    '-Wa,--dsp',
     '-fstrict-volatile-bitfields',
 ]
-VXDEV_LDFLAGS = [
+ldflags     = [
     '-static',
     '-Wl,-Map=map',
     '-Wl,--build-id=none',
     '-Wl,--emit-relocs',
 ]
-VXDEV_LIBS = [
+libraries   = [
     '-lgcc',
-]
-VXDEV_ASSETS = [
-    'font3x5',
 ]

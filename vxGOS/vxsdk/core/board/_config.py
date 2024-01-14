@@ -29,12 +29,14 @@ def board_config_load(compile_conf_path: Path) -> Dict[str,Any]:
             log.emergency('Missing toolchain prefix information')
         if 'processor' not in compile_conf['toolchain']:
             log.emergency('Missing toolchain processor information')
+        if 'endianness' not in compile_conf['toolchain']:
+            log.emergency('Missing toolchain processor information')
         if 'cflags' not in compile_conf['toolchain']:
             log.emergency('Missing toolchain cflags information')
         if 'ldflags' not in compile_conf['toolchain']:
             log.emergency('Missing toolchain ldflags information')
         if 'libraries' not in compile_conf['toolchain']:
-            log.emergency('Missing toolchain endianness information')
+            log.emergency('Missing toolchain libraries information')
         return compile_conf
     except toml.TomlDecodeError as err:
         log.emergency(err)

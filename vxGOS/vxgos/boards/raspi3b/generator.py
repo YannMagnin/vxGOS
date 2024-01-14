@@ -1,20 +1,22 @@
 """
 generate - post-build script used to generate bootlaoder blob with ASLR
 """
-import os
-import sys
-import subprocess
-
 __all__ = [
     'generate_aslr_blob',
-    'generate_image'
+    'generate_final_image',
 ]
+from typing import Optional, List, Any
+from pathlib import Path
+import sys
+
+from vxsdk.core.utils import utils_cmd_exec
+from vxsdk.core.logger import log
 
 #---
 # Internals
 #---
 
-def _patch_got_section(symfile, section):
+def _patch_got_section(symfile: Any, section: List[str]) -> None:
     """ fetch all address of the GOT table
     """
     for sec in section:
@@ -30,39 +32,43 @@ def _patch_got_section(symfile, section):
 # Public
 #---
 
-def generate_aslr_blob(binpath, symtab, sectab):
+# allow too many local variables declaractions
+# pylint: disable=locally-disabled,R0914
+def generate_aslr_blob(
+    project_name:   str,
+    prefix_build:   Path,
+    elf_file:       Path,
+    symtab:         List[Any],
+    sectab:         List[Any],
+) -> Path:
     """ generate bootloader final blob with ASLR
 
-    The objectif of this script is to generate the final bootloader blob with
-    ASLR. To performs this, we will performs 3 steps:
+    The objectif of this script is to generate the final bootloader blob
+    with ASLR. To performs this, we will performs 3 steps:
 
         * generate the raw binary file of the bootloader (objcpy)
         * generate the raw ALSR symbols table
         * generate the complet blootloader image
 
-    @args
-    > binpath  (str) - binary file
-    > symtab  (list) - list of all reloc information (readelf -r binpath)
-    > sectab  (list) - list of all sections information (readelf -S binpath)
-
-    @return
-    > Nothings
+    And return the final blob path
     """
+    raw_file    = prefix_build/f"{project_name}.raw"
+    symtab_file = prefix_build/f"{project_name}.symtab"
+    bzimg_file  = prefix_build/f"{project_name}.bzImage"
+
     print('- generate raw binary...')
-    if os.path.exists(f"{binpath}.raw"):
-        os.remove(f"{binpath}.raw")
-    cmd = f"aarch64-linux-gnu-objcopy -O binary -R .bss {binpath} {binpath}.raw"
-    subprocess.run(
-        cmd.split(),
-        capture_output=False,
-        check=False
+    utils_cmd_exec(
+        'aarch64-linux-gnu-objcopy '
+        '-O binary '
+        '-R .bss '
+        f"{str(elf_file)} "
+        f"{str(raw_file)}"
     )
 
     print('- generate raw symtab...')
-    if os.path.exists(f"{binpath}.symtab"):
-        os.remove(f"{binpath}.symtab")
     need_patch_got = False
-    with open(f"{binpath}.symtab", 'xb') as symfile:
+    symtab_file.unlink(missing_ok=True)
+    with open(symtab_file, 'xb') as symfile:
         for i, sym in enumerate(symtab):
             # direct 64bits address
             if sym[2] == 'R_AARCH64_ABS64':
@@ -94,34 +100,43 @@ def generate_aslr_blob(binpath, symtab, sectab):
         # patch GOT if needed
         if need_patch_got:
             _patch_got_section(symfile, sectab)
-        symfile.write(int('0000000000000000', base=16).to_bytes(8, 'little'))
+        symfile.write(
+            int('0000000000000000', base=16).to_bytes(8, 'little')
+        )
 
     print('- generate the full bootloader...')
-    if os.path.exists(f"{binpath}.bzImage"):
-        os.remove(f"{binpath}.bzImage")
     image_size = 0
-    with open(f"{binpath}.bzImage", 'xb') as bzimgfile:
-        with open(f"{binpath}.raw", 'rb') as rawbinfile:
+    bzimg_file.unlink(missing_ok=True)
+    with open(bzimg_file, 'xb') as bzimgfile:
+        with open(raw_file, 'rb') as rawbinfile:
             content = rawbinfile.read()
             bzimgfile.write(content)
             image_size += len(content)
-        with open(f"{binpath}.symtab", 'rb') as symtabfile:
+        with open(symtab_file, 'rb') as symtabfile:
             content = symtabfile.read()
             bzimgfile.write(content)
             image_size += len(content)
         if image_size % 512:
             for _ in range(0, 512 - (image_size % 512)):
                 bzimgfile.write(0x00.to_bytes(1))
-    return f"{binpath}.bzImage"
+    return bzimg_file
 
-
-def generate_image(prefix_build, bootloader_path, _):
+def generate_final_image(
+    prefix_build:       Path,
+    bootloader_path:    Path,
+    kernel_path:        Optional[Path] = None,
+    os_path:            Optional[Path] = None,
+) -> Path:
     """ generate complet image file
     """
-    # mov x0, #0x0000         = 0xd2800000  -  0xd29fffe0
-    # mov x0, #0x0000, lsl 16 = 0xf2a00000  -  0xf2bfffe0
-    # mov x0, #0x0000, lsl 32 = 0xf2c00000  -  0xf2dfffe0
-    # mov x0, #0x0000, lsl 48 = 0xf2e00000  -  0xf2ffffe0
+    log.user('- construct the raw final image...')
+    image = bytearray(0)
+    for project_path in (bootloader_path, kernel_path, os_path):
+        if not project_path:
+            continue
+        with open(project_path, 'rb') as projectfile:
+            image += projectfile.read()
+    image_size = len(image)
 
     image = bytearray(0)
     with open(bootloader_path, 'rb') as bootloaderfile:
@@ -129,20 +144,25 @@ def generate_image(prefix_build, bootloader_path, _):
     # (todo) os/kernel
     image_size = len(image)
 
+    # @note
+    # mov x0, #0x0000         = 0xd2800000  -  0xd29fffe0
+    # mov x0, #0x0000, lsl 16 = 0xf2a00000  -  0xf2bfffe0
+    # mov x0, #0x0000, lsl 32 = 0xf2c00000  -  0xf2dfffe0
+    # mov x0, #0x0000, lsl 48 = 0xf2e00000  -  0xf2ffffe0
+    log.user('- patching first two instruction of the image...')
     mov0 = 0xd2800000 | (((image_size & 0x000000000000ffff) >>  0) << 5)
     mov1 = 0xf2a00000 | (((image_size & 0x00000000ffff0000) >> 16) << 5)
     mov2 = 0xf2c00000 | (((image_size & 0x0000ffff00000000) >> 32) << 5)
     mov3 = 0xf2e00000 | (((image_size & 0xffff000000000000) >> 48) << 5)
-
     image[0x40:0x44] = mov0.to_bytes(4, 'little')
     image[0x44:0x48] = mov1.to_bytes(4, 'little')
     image[0x48:0x4c] = mov2.to_bytes(4, 'little')
     image[0x4c:0x50] = mov3.to_bytes(4, 'little')
-
     image[0x0c:0x14] = image_size.to_bytes(8, 'little')
 
-    bzimage = f"{prefix_build}/vxgos.bzImage"
-    if os.path.exists(bzimage):
-        os.remove(bzimage)
-    with open(bzimage, 'xb') as bzimage:
+    log.user('- generating the BzImage...')
+    bzimage_path = prefix_build/'vxgos.bzImage'
+    bzimage_path.unlink(missing_ok=True)
+    with open(bzimage_path, 'xb') as bzimage:
         bzimage.write(image)
+    return bzimage_path

@@ -42,7 +42,8 @@ def vxsdk_cli_board_build_entry(
     """ build the selected board
     """
     try:
-        board_manager_build(project_target, enable_verbose)
+        img_path = board_manager_build(project_target, enable_verbose)
+        print(f"Final generated at '{str(img_path)}'")
         sys.exit(0)
     except SDKException as err:
         print(err, file=sys.stderr)

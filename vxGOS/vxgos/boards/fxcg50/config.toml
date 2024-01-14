@@ -1,6 +1,7 @@
 [toolchain]
 prefix      = 'sh-elf-vhex-'
 processor   = 'sh'
+endianness  = 'big'
 cflags      = [
     '-Wall',
     '-Wextra',
@@ -24,7 +25,3 @@ ldflags     = [
 libraries   = [
     '-lgcc',
 ]
-
-
-[converter]
-endianness  = 'big'

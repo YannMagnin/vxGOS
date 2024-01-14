@@ -8,7 +8,7 @@ __all__ = [
     'board_manager_initialise',
     'board_manager_build',
 ]
-from typing import Generator, Optional, Dict, Any
+from typing import Generator, Optional, Dict, Any, cast
 from dataclasses import dataclass
 from pathlib import Path
 import os
@@ -142,7 +142,7 @@ def board_manager_initialise(board_name: str) -> None:
 def board_manager_build(
     project_target: Optional[str],
     enable_verbose: bool,
-) -> None:
+) -> Path:
     """ build projects
     """
     if not (board := board_manager_select_get()):
@@ -152,21 +152,23 @@ def board_manager_build(
     board_config = board_config_load(board.prefix_board/'config.toml')
     generator = _board_manager_load_generator(board.name)
     if project_target:
-        {
+        return {
             'bootloader' : board_bootloader_build,
             #'kernel'    : board_kernel_build,
             #'os'        : board_os_build,
         }[project_target](board.name, board_config, generator)
-        return
     file = (
         board_bootloader_build(board.name, board_config, generator),
         None,
         None,
     )
     log.user('[+] generate final image...')
-    generator['image'](
-        board.prefix_build,
-        file[0],
-        file[1],
-        file[2],
+    return cast(
+        Path,
+        generator['image'](
+            board.prefix_build,
+            file[0],
+            file[1],
+            file[2],
+        ),
     )

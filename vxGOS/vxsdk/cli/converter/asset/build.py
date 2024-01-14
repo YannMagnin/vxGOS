@@ -11,10 +11,8 @@ import sys
 import click
 
 from vxsdk.core.exception import SDKException
-from vxsdk.core.converter.manager import (
-    converter_manager_generate,
-    converter_manager_load_compconf,
-)
+from vxsdk.core.converter.manager import converter_manager_generate
+from vxsdk.core.board._config import board_config_load
 
 #---
 # Public
@@ -48,25 +46,23 @@ from vxsdk.core.converter.manager import (
     )
 )
 @click.option(
-    '-p', '--project', 'project_target',
-    required    = False,
-    type        = click.Choice(
-        [
-            'bootloader',
-            'kernel',
-            'os',
-        ],
-        case_sensitive  = False,
+    '-I', '--include', 'prefix_include',
+    required    = True,
+    metavar     = 'PREFIX_INCLUDE',
+    help        = 'prefix to include directory',
+    type        = click.Path(
+        exists          = False,
+        file_okay       = False,
+        dir_okay        = True,
+        path_type       = Path,
+        resolve_path    = True,
     )
 )
 @click.option(
-    '-e', '--endianness', 'endianness',
-    required    = True,
+    '-p', '--project', 'project_target',
+    required    = False,
     type        = click.Choice(
-        [
-            'little',
-            'big',
-        ],
+        choices         = ['bootloader', 'kernel', 'os'],
         case_sensitive  = False,
     )
 )
@@ -86,8 +82,8 @@ from vxsdk.core.converter.manager import (
 def vxsdk_cli_converter_asset_build_entry(
     prefix_asset:   Path,
     prefix_build:   Path,
+    prefix_include: Path,
     project_target: str,
-    endianness:     str,
     compconf_file:  Path,
 ) -> NoReturn:
     """ build asset
@@ -96,9 +92,9 @@ def vxsdk_cli_converter_asset_build_entry(
         converter_manager_generate(
             prefix_asset,
             prefix_build,
+            prefix_include,
             project_target,
-            endianness,
-            converter_manager_load_compconf(compconf_file),
+            board_config_load(compconf_file),
         )
         sys.exit(0)
     except SDKException as err:

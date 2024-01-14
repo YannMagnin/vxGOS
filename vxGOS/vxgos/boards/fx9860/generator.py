@@ -1,5 +1,5 @@
 """
-board.fxcg50.generator  - various generator (ASLR and final image)
+board.fx9860.generator  - various generator (ASLR and final image)
 """
 __all__ = [
     'generate_aslr_blob',
@@ -105,7 +105,7 @@ def generate_final_image(
     kernel_path:        Optional[Path] = None,
     os_path:            Optional[Path] = None,
 ) -> Path:
-    """ generate complet image (g3a) file
+    """ generate complet image (g1a) file
     """
     log.user('- construct the raw final image...')
     image = bytearray(0)
@@ -132,14 +132,13 @@ def generate_final_image(
     with open(bzimage_path, 'xb') as bzimage:
         bzimage.write(image)
 
-    log.user('- generating the G3A final file...')
+    log.user('- generating the G1A final file...')
     prefix_board = str(Path(f"{__file__}/..").resolve())
     utils_cmd_exec(
         'python3 '
-        f"{str(prefix_board)}/g3a_generator.py "
-        f"{str(prefix_build)}/vxgos.g3a "
+        f"{str(prefix_board)}/g1a_generator.py "
+        f"{str(prefix_build)}/vxgos.g1a "
         f"{str(prefix_build)}/vxgos.bzImage "
-        f"{str(prefix_board)}/icon-sel.png "
-        f"{str(prefix_board)}/icon-uns.png "
+        f"{str(prefix_board)}/icon.bmp"
     )
-    return prefix_build/'vxgos.g3a'
+    return prefix_build/'vxgos.g1a'
