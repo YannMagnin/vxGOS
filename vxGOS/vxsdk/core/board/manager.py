@@ -8,7 +8,8 @@ __all__ = [
     'board_manager_initialise',
     'board_manager_build',
 ]
-from typing import Generator, Optional, Dict, Any, cast
+from typing import Optional, Any, cast
+from collections.abc import Generator
 from dataclasses import dataclass
 from pathlib import Path
 import os
@@ -32,7 +33,7 @@ from vxsdk.core._config import (
 # Internals
 #---
 
-def _board_manager_load_generator(board: str) -> Dict[str,Any]:
+def _board_manager_load_generator(board: str) -> dict[str,Any]:
     """ load the `board/generator.py`
     """
     try:
@@ -82,18 +83,6 @@ class BoardSelected():
 
 ## functions
 
-def board_manager_select(board_name: str) -> None:
-    """ select a new board
-    """
-    if not (CONFIG_SDK_PREFIX_BUILD/board_name).exists():
-        raise BoardException(
-            f"Target board '{board_name}' is not initialised"
-        )
-    selected = CONFIG_SDK_PREFIX_BUILD/'SELECT'
-    selected.unlink(missing_ok=True)
-    selected.symlink_to(CONFIG_SDK_PREFIX_BUILD/board_name)
-    print(f"Selecting board '{board_name}'")
-
 def board_manager_select_get() -> BoardSelected|None:
     """ return the selected board
     """
@@ -137,7 +126,16 @@ def board_manager_initialise(board_name: str) -> None:
     board_bootloader_initialise(board_name, board_config)
     #board_kernel_initialise(board_name, board_config)
     #board_os_initialise(board_name, board_config)
-    board_manager_select(board_name)
+
+def board_manager_select(board_name: str) -> None:
+    """ select a new board
+    """
+    if not (CONFIG_SDK_PREFIX_BUILD/board_name).exists():
+        board_manager_initialise(board_name)
+    selected = CONFIG_SDK_PREFIX_BUILD/'SELECT'
+    selected.unlink(missing_ok=True)
+    selected.symlink_to(CONFIG_SDK_PREFIX_BUILD/board_name)
+    log.user(f"Selecting board '{board_name}'")
 
 def board_manager_build(
     project_target: Optional[str],

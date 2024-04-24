@@ -11,6 +11,7 @@ import click
 
 from vxsdk.core.exception import SDKException
 from vxsdk.core.board import board_manager_build
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -43,8 +44,8 @@ def vxsdk_cli_board_build_entry(
     """
     try:
         img_path = board_manager_build(project_target, enable_verbose)
-        print(f"Final generated at '{str(img_path)}'")
+        log.user(f"Final generated at '{str(img_path)}'")
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(0)

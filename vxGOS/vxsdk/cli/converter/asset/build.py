@@ -13,6 +13,7 @@ import click
 from vxsdk.core.exception import SDKException
 from vxsdk.core.converter.manager import converter_manager_generate
 from vxsdk.core.board._config import board_config_load
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -98,5 +99,5 @@ def vxsdk_cli_converter_asset_build_entry(
         )
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

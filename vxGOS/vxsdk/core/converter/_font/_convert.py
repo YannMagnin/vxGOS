@@ -4,7 +4,7 @@ vxsdk.core.converter._font._convert - convert image to raw data
 __all__ = [
     'font_convert_img_to_raw',
 ]
-from typing import Dict, List, Any
+from typing import Any
 
 from PIL import Image
 
@@ -29,11 +29,11 @@ from vxsdk.core.converter._font._glyph import (
 
 def _font_convert_proportional(
     asset:          Any,
-    img_info:       Dict[str,Any],
-    glyph_info:     List[int],
-    grid_info:      List[int],
-    data_info:      Dict[str,Any],
-    geometry_info:  Dict[str,Any],
+    img_info:       dict[str,Any],
+    glyph_info:     list[int],
+    grid_info:      list[int],
+    data_info:      dict[str,Any],
+    geometry_info:  dict[str,Any],
 ) -> None:
     """ Generate proportional font
 
@@ -81,11 +81,11 @@ def _font_convert_proportional(
 
 def _font_convert_monospaced(
     asset:          Any,
-    img_info:       Dict[str,Any],
-    glyph_info:     List[int],
-    grid_info:      List[int],
-    data_info:      Dict[str,Any],
-    geometry_info:  Dict[str,Any],
+    img_info:       dict[str,Any],
+    glyph_info:     list[int],
+    grid_info:      list[int],
+    data_info:      dict[str,Any],
+    geometry_info:  dict[str,Any],
 ) -> None:
     """ Generate proportional font
     """

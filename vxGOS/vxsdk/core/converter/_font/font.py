@@ -4,7 +4,7 @@ vxsdk.core.converter._font.font     - font asset abstraction
 __all__ = [
         'ConvAssetFont',
         ]
-from typing import Dict, List, Tuple, Any
+from typing import Any
 from pathlib import Path
 
 from vxsdk.core.converter.asset import ConvAsset
@@ -27,7 +27,7 @@ class ConvAssetFont(ConvAsset):
     def __init__(
         self,
         name: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         prefix_asset: Path,
     ) -> None:
         super().__init__(name, config, prefix_asset)
@@ -43,8 +43,8 @@ class ConvAssetFont(ConvAsset):
         self.glyph_size         = 0
         self.glyph_height       = 0
         self.glyph_count        = 0
-        self.glyph_props:   List[Any] = []
-        self.data:          List[Any] = []
+        self.glyph_props:   list[Any] = []
+        self.data:          list[Any] = []
         if 'charset' in config:
             if config['charset'] not in ['default', 'unicode']:
                 raise ConvAssetFontException(
@@ -96,7 +96,7 @@ class ConvAssetFont(ConvAsset):
         prefix_build:   Path,
         target:         str,
         endianness:     str,
-    ) -> Tuple[Path,bool]:
+    ) -> tuple[Path,bool]:
         """ generate C file and return the path and if need a build
         """
         super().generate(prefix_build, target, endianness)

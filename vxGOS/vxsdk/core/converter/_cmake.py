@@ -4,7 +4,7 @@ vxsdk.core.converter._font._cmake   - cmake abstraction
 __all__ = [
     'converter_cmake_build',
 ]
-from typing import Dict, Any, List
+from typing import Any
 from pathlib import Path
 
 from vxsdk.core.utils import utils_cmake_build
@@ -52,8 +52,8 @@ add_library(assets ${VXSDK_PROJ_SOURCES})
 def converter_cmake_build(
     prefix_build:       Path,
     prefix_include:     Path,
-    compile_conf:       Dict[str,Any],
-    asset_outfile_list: List[Path],
+    compile_conf:       dict[str,Any],
+    asset_outfile_list: list[Path],
 ) -> Path:
     """ build the assets library using cmake and return the library
     """

@@ -11,6 +11,7 @@ import click
 
 from vxsdk.core.exception import SDKException
 from vxsdk.core.board import board_manager_iterate
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -24,8 +25,8 @@ def vxsdk_cli_board_list_entry() -> NoReturn:
         for binfo in board_manager_iterate():
             select = 'S' if binfo.is_select else '-'
             config = 'C' if binfo.is_config else '-'
-            print(f"{select}{config} {binfo.name:<22}")
+            log.user(f"{select}{config} {binfo.name:<22}")
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

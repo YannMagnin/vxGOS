@@ -5,7 +5,7 @@ __all__ = [
     'font_glyph_get_wgeometry',
     'font_glyph_encode',
 ]
-from typing import Dict, Any, Tuple
+from typing import Any
 
 from vxsdk.core.logger import log
 
@@ -14,11 +14,11 @@ from vxsdk.core.logger import log
 #---
 
 def font_glyph_get_wgeometry(
-    geometry_info:  Dict[str,Any],
+    geometry_info:  dict[str,Any],
     img_raw:        Any,
-    img_size:       Tuple[int,int],
-    pos:            Tuple[int,int],
-    grid_size:      Tuple[int,int],
+    img_size:       tuple[int,int],
+    pos:            tuple[int,int],
+    grid_size:      tuple[int,int],
 ) -> None:
     """ Generate glyph width geometry information
 
@@ -55,9 +55,9 @@ def font_glyph_get_wgeometry(
     log.debug(f' - geometry = {geometry_info}')
 
 def font_glyph_encode(
-    data_info:  Dict[str,Any],
-    img_info:   Dict[str,Any],
-    geometry:   Dict[str,Any],
+    data_info:  dict[str,Any],
+    img_info:   dict[str,Any],
+    geometry:   dict[str,Any],
     posx:       int,
     posy:       int,
 ) -> None:

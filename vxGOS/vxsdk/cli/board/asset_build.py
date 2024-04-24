@@ -15,6 +15,7 @@ from vxsdk.core.converter.manager import converter_manager_generate
 from vxsdk.core.board.manager import board_manager_select_get
 from vxsdk.core._config import CONFIG_SDK_PREFIX_SRCS
 from vxsdk.core.board._config import board_config_load
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -58,10 +59,10 @@ def vxsdk_cli_board_asset_build_entry(
                 config,
             )
         ):
-            print('No assets found')
+            log.error('No assets found')
             sys.exit(0)
-        print(f"Asset library generate at {str(asset_lib_path)}")
+        log.user(f"Asset library generate at {str(asset_lib_path)}")
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

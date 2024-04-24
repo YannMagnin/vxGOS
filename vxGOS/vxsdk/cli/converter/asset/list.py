@@ -12,6 +12,7 @@ import click
 
 from vxsdk.core.exception import SDKException
 from vxsdk.core.converter import converter_manager_iterate
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -36,8 +37,8 @@ def vxsdk_cli_converter_asset_list_entry(prefix_asset: Path) -> NoReturn:
     """
     try:
         for asset in converter_manager_iterate(prefix_asset):
-            print(asset)
+            log.user(asset)
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

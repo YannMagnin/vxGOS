@@ -4,7 +4,7 @@ vxsdk.core.converter.asset  - asset abstraction
 __all__ = [
     'ConvAsset',
 ]
-from typing import Dict, Any, Self, Tuple, cast
+from typing import Any, Self, cast
 from pathlib import Path
 from abc import ABC, abstractmethod
 import re
@@ -21,7 +21,7 @@ class ConvAsset(ABC):
     #---
     # Factory magic
     #---
-    _subclass_list: Dict[str,Any] = {}
+    _subclass_list: dict[str,Any] = {}
 
     def __init_subclass__(cls, /, **kwargs: Any) -> None:
         """ register all subclass and perform aggressif check on the name
@@ -42,7 +42,7 @@ class ConvAsset(ABC):
     def factory_load(
         cls,
         asset_name: str,
-        asset_conf: Dict[str,Any],
+        asset_conf: dict[str,Any],
         asset_prefix: Path,
     ) -> Self:
         """ load appropriate class based on the type configuratio field
@@ -72,7 +72,7 @@ class ConvAsset(ABC):
     def __init__(
         self,
         name: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         prefix_asset: Path,
     ) -> None:
         if 'path' not in config:
@@ -121,10 +121,10 @@ class ConvAsset(ABC):
     @abstractmethod
     def generate(
         self,
-        prefix_build: Path,
+        prefix_build:   Path,
         target:         str,
         endianness:     str,
-    ) -> Tuple[Path,bool]:
+    ) -> tuple[Path,bool]:
         """
         generate the C file assiciated to the asset and return the path
         of the said generated C file
@@ -136,7 +136,7 @@ class ConvAsset(ABC):
             )
         if target not in ['bootloader', 'kernel', 'os']:
             raise ConverterException(
-                "No valid target, should be 'bootloader', 'kernel' or 'os' "
-                f"(get '{target}')"
+                "No valid target, should be 'bootloader', 'kernel' or "
+                f"'os' (get '{target}')"
             )
         return (prefix_build, False)

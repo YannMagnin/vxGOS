@@ -4,12 +4,14 @@ vxsdk.core.board._cmake     - cmake abstraction
 __all__ = [
     'utils_cmake_build',
 ]
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
 from pathlib import Path
 from dataclasses import dataclass
 import re
+import shutil
 
 from vxsdk.core.utils import utils_file_update, utils_cmd_exec
+from vxsdk.core.exception import SDKException
 
 #---
 # Internals
@@ -51,12 +53,12 @@ class _CMakeToolchainInfo():
 @dataclass
 class _CMakelistInfo():
     """ cmakefile packed information """
-    includes:   List[str]
-    srcs:       List[str]
+    includes:   list[str]
+    srcs:       list[str]
     linker:     Optional[Path]
-    cflags:     List[str]
-    ldflags:    List[str]
-    libraries:  List[str]
+    cflags:     list[str]
+    ldflags:    list[str]
+    libraries:  list[str]
 
 ## functions
 
@@ -104,13 +106,16 @@ def _board_cmake_generate_cmakelist(
 def utils_cmake_build(
     project_name:       str,
     prefix_build:       Path,
-    compile_conf:       Dict[str,Any],
-    compile_files:      Dict[str,Any],
+    compile_conf:       dict[str,Any],
+    compile_files:      dict[str,Any],
     linker_path:        Optional[Path],
     cmakelist_template: str
 ) -> None:
     """ perform build operation
     """
+    toolchain = compile_conf['toolchain']
+    if not shutil.which(f"{toolchain['prefix']}gcc"):
+        raise SDKException(f"missing toolchain '{toolchain['prefix']}gcc'")
     new_toolchain = _board_cmake_generate_toolchain(
         prefix_build,
         _CMakeToolchainInfo(

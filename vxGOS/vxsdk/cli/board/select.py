@@ -11,24 +11,22 @@ import click
 
 from vxsdk.core.exception import SDKException
 from vxsdk.core.board import board_manager_select
+from vxsdk.core.logger import log
 
 #---
 # Public
 #---
 
 @click.command('select')
-@click.option(
-    '-t', '--target', 'board_target',
-    required    = True,
-    metavar     = 'BOARD_NAME',
-    help        = 'board to initialise',
-)
-def vxsdk_cli_board_select_entry(board_target: str) -> NoReturn:
-    """ select a new board
+@click.argument('board_name')
+def vxsdk_cli_board_select_entry(board_name: str) -> NoReturn:
+    """ select a new board (and initialise it if needed)
+
+    BOARD_NAME is the board to select
     """
     try:
-        board_manager_select(board_target)
+        board_manager_select(board_name)
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

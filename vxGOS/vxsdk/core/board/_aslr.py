@@ -4,7 +4,7 @@ vxsdk.core.board._aslr  - ASLR abstraction
 __all__ = [
     'board_aslr_generate',
 ]
-from typing import Dict, Any, List, cast
+from typing import Any, cast
 from pathlib import Path
 import subprocess
 
@@ -14,7 +14,7 @@ from vxsdk.core.logger import log
 # Internals
 #---
 
-def _board_aslr_get_symtab(binpath: Path) -> List[Any]:
+def _board_aslr_get_symtab(binpath: Path) -> list[Any]:
     """ fetch all section relocation information
     """
     ret = subprocess.run(
@@ -35,7 +35,7 @@ def _board_aslr_get_symtab(binpath: Path) -> List[Any]:
         symtab.append(sinfo)
     return symtab
 
-def _board_aslr_get_sectab(binpath: Path) -> List[Any]:
+def _board_aslr_get_sectab(binpath: Path) -> list[Any]:
     """ fetch all section information (address, name, ...)
     """
     ret = subprocess.run(
@@ -66,7 +66,7 @@ def board_aslr_generate(
     project_name:   str,
     prefix_build:   Path,
     elf_file:       Path,
-    generator:      Dict[str,Any],
+    generator:      dict[str,Any],
 ) -> Path:
     """ generate the ALSR blob
     """

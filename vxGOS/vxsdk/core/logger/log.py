@@ -4,7 +4,7 @@ vxsdk.core.logger.log   - logger object abstraction
 __all__ = [
     'log',
 ]
-from typing import Any, Tuple, NoReturn
+from typing import Any, NoReturn
 import sys
 import inspect
 
@@ -39,7 +39,7 @@ class Logger():
 
     def _print(
         self,
-        level:    Tuple[int,str,str],
+        level:    tuple[int,str,str],
         text:     str,
         indent:   bool = True,
         fileno:   Any  = sys.stdout,

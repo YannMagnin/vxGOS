@@ -13,6 +13,7 @@ from vxsdk.core.exception import SDKException
 from vxsdk.core.converter import converter_manager_iterate
 from vxsdk.core.board.manager import board_manager_select_get
 from vxsdk.core._config import CONFIG_SDK_PREFIX_SRCS
+from vxsdk.core.logger import log
 
 #---
 # Public
@@ -38,8 +39,8 @@ def vxsdk_cli_board_asset_list_entry(project: str) -> NoReturn:
         for asset in converter_manager_iterate(
             CONFIG_SDK_PREFIX_SRCS/f"{project}/assets/",
         ):
-            print(asset)
+            log.user(asset)
         sys.exit(0)
     except SDKException as err:
-        print(err, file=sys.stderr)
+        log.error(err)
         sys.exit(1)

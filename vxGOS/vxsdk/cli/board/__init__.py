@@ -7,7 +7,6 @@ __all__ = [
 import click
 
 from vxsdk.cli.board.list import vxsdk_cli_board_list_entry
-from vxsdk.cli.board.init import vxsdk_cli_board_init_entry
 from vxsdk.cli.board.select import vxsdk_cli_board_select_entry
 from vxsdk.cli.board.build import vxsdk_cli_board_build_entry
 from vxsdk.cli.board.asset_list import vxsdk_cli_board_asset_list_entry
@@ -21,7 +20,6 @@ from vxsdk.cli.board.asset_build import vxsdk_cli_board_asset_build_entry
     'board',
     commands = [
         vxsdk_cli_board_list_entry,
-        vxsdk_cli_board_init_entry,
         vxsdk_cli_board_select_entry,
         vxsdk_cli_board_build_entry,
         vxsdk_cli_board_asset_list_entry,

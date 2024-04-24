@@ -5,7 +5,8 @@ __all__ = [
     'converter_manager_iterate',
     'converter_manager_generate',
 ]
-from typing import Generator, Dict, Any, List
+from typing import Any
+from collections.abc import Generator
 from pathlib import Path
 
 import toml
@@ -44,12 +45,12 @@ def converter_manager_generate(
     prefix_include: Path,
     prefix_build:   Path,
     project_target: str,
-    compconf:       Dict[str,Any],
+    compconf:       dict[str,Any],
 ) -> Path:
     """ generate all asset C files
     """
     need_build = 0
-    asset_outfile_list: List[Path] = []
+    asset_outfile_list: list[Path] = []
     for asset in converter_manager_iterate(prefix_asset):
         asset_info = asset.generate(
             prefix_build,

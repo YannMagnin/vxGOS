@@ -5,7 +5,7 @@ __all__ = [
     'board_bootloader_initialise',
     'board_bootloader_build',
 ]
-from typing import Dict, Any
+from typing import Any
 from pathlib import Path
 
 from vxsdk.core.logger import log
@@ -21,7 +21,7 @@ from vxsdk.core._config import (
 # Internals
 #---
 
-def _bootloader_find_srcs(prefix: Path, board_name: str) -> Dict[str,Any]:
+def _bootloader_find_srcs(prefix: Path, board_name: str) -> dict[str,Any]:
     """ find all files needed to generate the cmakefile
     """
     return {
@@ -46,8 +46,8 @@ def board_bootloader_initialise(board_name: str, _: Any) -> None:
 
 def board_bootloader_build(
     board_name:     str,
-    board_config:   Dict[str,Any],
-    generator:      Dict[str,Any],
+    board_config:   dict[str,Any],
+    generator:      dict[str,Any],
 ) -> Path:
     """ generate the ELF bootloader information
     """

@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = 'vxGOS'
-version     = '0.9.0'
+version     = '0.0.9'
 description = 'Vhex operating system oriented game creation'
 repository  = 'https://github.com/YannMagnin/vxGOS.git'
 readme      = 'README.md'
@@ -27,6 +27,6 @@ types-toml      = "*"
 types-pillow    = "*"
 
 [tool.poetry.dev-dependencies]
-pynvim  = "0.5.*"
-pylint  = "3.*"
-mypy    = "1.*"
+pynvim  = "*"
+pylint  = "*"
+mypy    = "*"
