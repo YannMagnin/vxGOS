@@ -1,0 +1,27 @@
+[toolchain]
+prefix      = 'sh-elf-vhex-'
+processor   = 'sh'
+endianness  = 'big'
+cflags      = [
+    '-Wall',
+    '-Wextra',
+    '-D__SUPPORT_FXCG50__',
+    '-D_FORTIFY_SOURCE=0',
+    '-ffreestanding',
+    '-nostdlib',
+    '-fPIE',
+    '-O3',
+    '-mb',
+    '-m4-nofpu',
+    '-Wa,--dsp',
+    '-fstrict-volatile-bitfields',
+]
+ldflags     = [
+    '-static',
+    '-Wl,-Map=map',
+    '-Wl,--build-id=none',
+    '-Wl,--emit-relocs',
+]
+libraries   = [
+    '-lgcc',
+]
