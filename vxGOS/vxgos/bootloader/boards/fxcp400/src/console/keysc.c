@@ -5,32 +5,29 @@
 // Internlas
 //---
 
-/* keysc_fetch() : scan the KEYSC hardware module */
-static int keysc_fetch(void)
+/* keysc_fetch() : scan the KEYSC hardware module
+ *
+ * @note
+ * - we MUST walk trough all KEYSC data entries to avoid hardware freeze
+ * */
+int keysc_fetch(void)
 {
     uint16_t volatile *SH7305_KEYSC = (void*)0xa44b0000;
-    int column;
-    int key;
-    int row;
-    int registered;
+    uint16_t registered;
     uint16_t udata;
 
-    row = 6;
-    key = 0x5f;
     registered = 0x0000;
-    while (--row >= 0)
+    for (int row = 0; row < 6; ++row)
     {
-        column = 16;
         udata = SH7305_KEYSC[row];
         if (registered != 0x0000)
             continue;
-        while (--column >= 0)
+        for (int column = 0 ; column < 16 ; ++column)
         {
-            if ((udata & (0x8000 >> column)) != 0) {
-                registered = KEYCODE_GEN(row, column);
-                break;
-            }
-            key -= 1;
+            if ((udata & (0x0001 << column)) == 0)
+                continue;
+            registered = KEYCODE_GEN(row, column);
+            break;
         }
     }
     return registered;

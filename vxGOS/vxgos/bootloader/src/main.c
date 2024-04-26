@@ -23,7 +23,7 @@ int bootloader_main(uintptr_t image_base_addr, size_t image_size)
         &console,
         "vxGOS bootloader entry\n"
         "\n"
-        "[+] primary bootloader information:\n"
+        "[+] primary bootloader info:\n"
         "    - image base : %p\n"
         "    - image size : %do\n"
         ,
