@@ -169,7 +169,7 @@ bootloader_panic:
 
 .balign 4
 
-bootloader_main:        .long _debug_main
+bootloader_main:        .long _bootloader_main
 bootloader_code_end:    .long ___bootloader_code_end
 p2_addr_base:           .long 0xa0000000
 p1_addr_base:           .long 0x80000000

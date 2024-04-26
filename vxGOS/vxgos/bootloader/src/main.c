@@ -1,5 +1,6 @@
 #include "bootloader/console.h"
 #include "bootloader/display.h"
+#include "bootloader/bios.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -16,7 +17,8 @@ int bootloader_main(uintptr_t image_base_addr, size_t image_size)
 
     //TODO : check special key pressed, if not simply boot the kernel
 
-    console_open(&console);
+    if (console_open(&console) != 0)
+        _bios_panic();
     console_write(
         &console,
         "vxGOS bootloader entry\n"

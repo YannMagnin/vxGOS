@@ -25,4 +25,7 @@ extern void _bios_free(void *ptr);
 /* _bios_malloc() : memory allocator */
 extern void *_bios_malloc(size_t size);
 
+/* _bios_panic() : bios panic (fatal error) */
+extern _Noreturn void _bios_panic(void);
+
 #endif /* BOOTLOADER_BIOS_H */

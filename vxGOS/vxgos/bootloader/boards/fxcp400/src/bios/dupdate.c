@@ -51,6 +51,10 @@ static void r61523_write(uint16_t data)
 // Public
 //---
 
+/* use the VRAM used by Casio */
+// (fixme) : check portability of this address
+uint16_t volatile *casio_vram = (void*)0x8c000000;
+
 /* _bios_dupdate() : small R61523 driver
  *
  * @note
@@ -76,11 +80,9 @@ void _bios_dupdate(void)
     r61523_write((527 >> 8) & 0x03);
     r61523_write((527 >> 0) & 0xff);
 
-    /* Bind address 0xb4000000 to the data write command */
+    /* Bind address 0xb4000000 to the data write command and send vram */
     r61523_select(write_memory_start);
-
-    /* send VRAM */
     for (int i = 0; i < 320*528; ++i) {
-        r61523_write(0x001f);
+        r61523_write(casio_vram[i]);
     }
 }
