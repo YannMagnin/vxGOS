@@ -20,17 +20,23 @@ function(__fxcg50_primary_bootloader):
     !
     ! The next two instructions will be patched *DURING COMPILE TIME* with the
     ! complete image size (bootloader, ASLR, kernel, OS,...) as follows:
-    !   > mov.l complet_image_size, r0
-    !   > nop
+    !   > mov.l os_image_size, r0
+    !   > mov.l kernel_image_offset, r1
+    !   > mov.l kernel_image_size, r2
     ! If not patched, the code will just return and indicate to Casio not to
     ! restart the application.
     ! ---
 
+    nop
     rts
     mov     #1, r0
     bra     translation_entry
     nop
-.long   0x00000000
+    nop
+
+.long   0x00000000  ! OS image size
+.long   0x00000000  ! kernel image offset
+.long   0x00000000  ! kernel image size
 
 translation_entry:
 
@@ -39,8 +45,8 @@ translation_entry:
     !
     ! We don't need to setup the stack because we are loaded from CasioABS
     ! (Casio OS) as a simple program (addin) with a given stack, which we will
-    ! not use even if we use "special" registers such as r8, r9, ... as we will
-    ! be careful to never return from here.
+    ! not use even if we use "special" registers such as r8, r9, ... as we
+    ! will be careful to never return from here.
     !
     ! @note
     ! - r0  is reused

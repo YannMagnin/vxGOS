@@ -1,6 +1,6 @@
 #define ASM_SOURCE
 #include <vhex/hardware.h>
-#include "fxcg50/hardware.h"
+!#include "fxcg50/hardware.h"
 .text
 
 .global _sh7305_inth_callback
@@ -42,13 +42,14 @@ _sh7305_inth_callback:
     /* On the fx-CG emulator, it is outright ignored. In these situations,
        set IMASK to 15 to block interrupts while allowing TLB misses to be
        handled. */
-    mov.l   .vhex, r2
-    mov.l   @(4*HWDEVICE,r2), r0
-    cmp/eq  #HWDEVICE_FXCG_MANAGER, r0
-    bt  .set_imask
+    ! FIXME : board-specific
+    !mov.l   .vhex, r2
+    !mov.l   @(4*HWDEVICE,r2), r0
+    !cmp/eq  #HWDEVICE_FXCG_MANAGER, r0
+    !bt  .set_imask
 
-    bra .load_sr
-    nop
+    !bra .load_sr
+    !nop
 
 .set_imask:
     mov.l   .SR_set_IMASK, r0

@@ -109,22 +109,37 @@ def generate_final_image(
     """
     log.user('- construct the raw final image...')
     image = bytearray(0)
+    kernel_info = [0, 0]
     for project_path in (bootloader_path, kernel_path, os_path):
         if not project_path:
             continue
         with open(project_path, 'rb') as projectfile:
-            image += projectfile.read()
+            blob = projectfile.read()
+        if project_path == kernel_path:
+            kernel_info[0] = len(blob)
+            kernel_info[1] = len(image)
+        image += blob
     image_size = len(image)
 
     log.user('- patching first two instruction of the image...')
-    image[0]  = 0b00000000   # (MSB) nop
-    image[1]  = 0b00001001   # (LSB) nop
-    image[2]  = 0b11010000   # (MSB) mov.l @(1, PC), r0
-    image[3]  = 0b00000001   # (LSB) mov.l @(1, PC), r0
-    image[8]  = (image_size & 0xff000000) >> 24
-    image[9]  = (image_size & 0x00ff0000) >> 16
-    image[10] = (image_size & 0x0000ff00) >> 8
-    image[11] = (image_size & 0x000000ff) >> 0
+    image[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
+    image[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
+    image[2]  = 0b11010001   # (MSB) mov.l @(3, PC), r1
+    image[3]  = 0b00000011   # (LSB) mov.l @(3, PC), r1
+    image[4]  = 0b11010010   # (MSB) mov.l @(3, PC), r2
+    image[5]  = 0b00000011   # (LSB) mov.l @(3, PC), r2
+    image[12] = (image_size & 0xff000000) >> 24
+    image[13] = (image_size & 0x00ff0000) >> 16
+    image[14] = (image_size & 0x0000ff00) >> 8
+    image[15] = (image_size & 0x000000ff) >> 0
+    image[16] = (kernel_info[0] & 0xff000000) >> 24
+    image[17] = (kernel_info[0] & 0x00ff0000) >> 16
+    image[18] = (kernel_info[0] & 0x0000ff00) >> 8
+    image[19] = (kernel_info[0] & 0x000000ff) >> 0
+    image[20] = (kernel_info[1] & 0xff000000) >> 24
+    image[21] = (kernel_info[1] & 0x00ff0000) >> 16
+    image[22] = (kernel_info[1] & 0x0000ff00) >> 8
+    image[23] = (kernel_info[1] & 0x000000ff) >> 0
 
     log.user('- generating the kernel image (final)...')
     bzimage_path = prefix_build/'vxgos.img'

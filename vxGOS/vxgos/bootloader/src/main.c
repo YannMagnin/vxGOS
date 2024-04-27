@@ -10,8 +10,12 @@
 //---
 
 /* bootloader_main() : bootloader high-level entry */
-int bootloader_main(uintptr_t image_base_addr, size_t image_size)
-{
+int bootloader_main(
+    uintptr_t image_base_addr,
+    size_t image_size,
+    uintptr_t kernel_image_base_addr,
+    size_t kernel_image_size
+) {
     struct console console;
     char buffer[128];
 
@@ -24,11 +28,15 @@ int bootloader_main(uintptr_t image_base_addr, size_t image_size)
         "vxGOS bootloader entry\n"
         "\n"
         "[+] primary bootloader info:\n"
-        "    - image base : %p\n"
-        "    - image size : %do\n"
+        "    - image base  : %p\n"
+        "    - image size  : %do\n"
+        "    - kernel base : %p\n"
+        "    - kernel size : %do\n"
         ,
         image_base_addr,
-        image_size
+        image_size,
+        kernel_image_base_addr,
+        kernel_image_size
     );
 
     while (1) {

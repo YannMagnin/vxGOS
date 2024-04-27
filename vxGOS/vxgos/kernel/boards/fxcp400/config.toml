@@ -1,0 +1,11 @@
+[kernel]
+modules = [
+
+]
+drivers = [
+
+]
+libraries = [
+    '-lc',
+    '-lgcc',
+]

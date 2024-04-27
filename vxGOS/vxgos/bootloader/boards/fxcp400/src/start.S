@@ -13,19 +13,25 @@ function(__fxcp400_bootloader_start):
     ! ---
     ! *CRITICAL*
     !
-    ! The next two instructions will be patched *DURING COMPILE TIME* with
+    ! The next three instructions will be patched *DURING COMPILE TIME* with
     ! the complete image size (bootloader, ASLR, kernel, OS,...) as follows:
-    !   > mov.l complet_image_size, r0
-    !   > nop
+    !   > mov.l os_image_size, r0
+    !   > mov.l kernel_image_offset, r1
+    !   > mov.l kernel_image_size, r2
     ! If not patched, the code will just return and indicate to the CFW to
     ! not restart the application.
     ! ---
 
+    nop
     rts
     mov     #1, r0
     bra     translation_entry
     nop
-.long   0x00000000
+    nop
+
+.long   0x00000000  ! OS image size
+.long   0x00000000  ! kernel image offset in the image
+.long   0x00000000  ! kernel image size
 
 translation_entry:
 
@@ -35,6 +41,8 @@ translation_entry:
 
     #define image_reloc_base_addr   r4
     #define image_size              r5
+    #define kernel_image_addr       r6
+    #define kernel_image_size       r7
 
     ! ---
     ! Save critical information
@@ -43,8 +51,10 @@ translation_entry:
     ! compile-time image size information
     ! ---
 
-    ! save image size
+    ! save patched information
     mov     r0, image_size
+    mov     r1, kernel_image_addr
+    mov     r2, kernel_image_size
 
     ! precalculate runtime loaded address
     ! @note
@@ -142,12 +152,13 @@ setup_stack:
     ! TODO : stack canary
 
 bootloader_c_invokation:
-    mov.l   p2_addr_base, r2
     mov     image_reloc_base_addr, r4
     mov     image_size, r5
+    mov     kernel_image_addr, r6
+    mov     kernel_image_size, r7
     mov.l   bootloader_main, r0
     jsr     @r0
-    or      r2, r4
+    add     r4, r6
 
     ! ---
     ! bootloader panic
