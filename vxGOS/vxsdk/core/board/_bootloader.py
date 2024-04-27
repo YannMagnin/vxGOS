@@ -57,8 +57,8 @@ def board_bootloader_build(
     compile_file = _bootloader_find_srcs(prefix_src, board_name)
     log.user('[+] building assets...')
     asset_library = converter_manager_generate(
-        CONFIG_SDK_PREFIX_SRCS/'bootloader/assets/',
-        CONFIG_SDK_PREFIX_SRCS/'bootloader/include/',
+        prefix_src/'assets/',
+        prefix_src/'include/',
         prefix_build/'_assets/',
         'bootloader',
         board_config,

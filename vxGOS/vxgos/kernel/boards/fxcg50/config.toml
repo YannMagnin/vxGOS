@@ -1,8 +1,4 @@
-[meta]
-description = "Casio's Fxcg50 calculator board"
-author      = 'Yann MAGNIN'
-
-[config]
+[kernel]
 modules = [
     'display',
     'hypervisor',
@@ -12,9 +8,9 @@ modules = [
     'rtc',
     'dma',
     'usb',
-    'fs'
+    'fs',
 ]
 drivers = [
     'screen/R61524',
-    'mpu/sh/sh7305'
+    'mpu/sh/sh7305',
 ]

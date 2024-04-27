@@ -1,8 +1,6 @@
-
-PHDRS
-{
-    vxgos_load PT_LOAD FLAGS(1);
-}
+/*
+ * Generic bootloader linker script
+ */
 
 SECTIONS
 {
@@ -13,12 +11,13 @@ SECTIONS
     /* used for the self-translation step if needed */
     ___bootloader_code_start = . ;
 
-    /* explicitly isolate the "pre text" code which should be executed first */
+    /* explicitly isolate the "pre text" code which should be executed
+     * first */
     .bootloader : {
         KEEP(*(.bootloader.header))
         KEEP(*(.bootloader.pre_text))
         KEEP(*(.bootloader.text))
-    } : vxgos_load
+    }
 
     /* assembly code should be inserted here */
     .text : {
@@ -27,7 +26,7 @@ SECTIONS
         *(.text.*)
     }
 
-    /* Read-only sections */
+    /* read-only sections */
     .rodata : {
         *(.rodata)
         *(.rodata.*)
@@ -37,11 +36,7 @@ SECTIONS
     .bss ALIGN(16) (NOLOAD) : {
         *(.bss)
         *(.bss.*)
-
         . = ALIGN(16) ;
-
-        . = . + (16 * 1024) ;
-        __bootloader_stack = ALIGN(16) ;
     }
 
     /* readable / writable data (must be 16-aligned) */
@@ -68,7 +63,7 @@ SECTIONS
     .dynstr   : { *(.dynstr)   }
     .gnu.hash : { *(.gnu.hash) }
 
-    /* Gloabal offset table
+    /* gloabal offset table
      * We don't want/need any GOT entries, but BFD LD insert an entry
      * ("_DYNAMIC") into '.got', as required by ABI, and three empty entry on
      * some architecture. */

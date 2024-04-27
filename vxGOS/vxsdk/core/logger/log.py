@@ -20,7 +20,7 @@ class Logger():
     LOG_NOTICE  = (5, 'NOTICE',    '\033[1m')
     LOG_USER    = (4, 'USER',      '\033[0m')
     LOG_WARN    = (3, 'WARNING',   '\033[1;33m')
-    LOG_ERR     = (2, 'ERROR',     '\033[0;33m')
+    LOG_ERR     = (2, 'ERROR',     '\033[0;31m')
     LOG_CRIT    = (1, 'CRITICAL',  '\033[1;31m')
     LOG_EMERG   = (0, 'EMERGENCY', '\033[0;31m')
 
@@ -49,7 +49,8 @@ class Logger():
         """
         if self._loglevel_limit < level:
             return 0
-        if level[0] != Logger.LOG_USER[0]:
+        text = f"{text}"
+        if level[0] in (Logger.LOG_CRIT[0], Logger.LOG_EMERG[0]):
             curframe = inspect.currentframe()
             calframe = inspect.getouterframes(curframe, 2)[2]
             text = \
@@ -82,7 +83,7 @@ class Logger():
         """ print user log """
         return self._print(Logger.LOG_USER, text, **kwargs)
 
-    def warn(self, text: Any, **kwargs: Any) -> int:
+    def warning(self, text: Any, **kwargs: Any) -> int:
         """ print warning log """
         return self._print(
             level   = Logger.LOG_WARN,

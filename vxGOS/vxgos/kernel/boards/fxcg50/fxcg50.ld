@@ -1,9 +1,6 @@
 /*
     Linker script for the fxcg50 platform.
 */
-
-OUTPUT_FORMAT("elf32-sh", "elf32-sh", "elf32-sh")
-OUTPUT_ARCH(sh4)
 ENTRY(_initialize)
 
 /*
@@ -19,10 +16,24 @@ MEMORY
 
 SECTIONS
 {
+    /* set the base address to zero. This is really usefull when patching
+     * symbols "on-the-fly" during runtime */
+    . = 0x00000000 ;
+
+    /* used for the self-patching step if needed */
+    ___kernel_code_start = . ;
+
+    /* explicitly isolate the "pre text" code which should be executed
+     * first */
+    .kernel : {
+        KEEP(*(.kernel.header))
+        KEEP(*(.kernel.pre_text))
+        KEEP(*(.kernel.text))
+    }
+
     /* Code */
     .text : {
-        PROVIDE(___kernel_reloc_start = .);
-
+        *(.text.entry);
         *(.text);
         *(.text.*);
 
@@ -34,14 +45,14 @@ SECTIONS
         *(.dtors .dtors.*)
         _edtors = . ;
 
-    } > userram
+    }
 
     /* vhex's interrupt handler blocks (.vhex.blocks)
        Although vhex's blocks end up in VBR space, they are relocated at
        startup by the library/drivers, so we store them here for now */
     .vhex.blocks : {
-        KEEP(*(.vhex.blocks));
-    } > userram
+        KEEP(*(SORT_BY_NAME(.vhex.blocks.*)));
+    }
 
     /* Exposed driver interfaces (.vhex.drivers)
        The driver information is required to start and configure the
@@ -50,56 +61,30 @@ SECTIONS
         _vhex_drivers_start = . ;
         KEEP(*(SORT_BY_NAME(.vhex.drivers.*)));
         _vhex_drivers_end = . ;
-    } > userram
+    }
 
     /* Exposed module interfaces (.vhex.modules) */
     .vhex.modules : {
         _vhex_modules_start = . ;
         KEEP(*(SORT_BY_NAME(.vhex.modules.*)));
         _vhex_modules_end = . ;
-    } > userram
+    }
 
-    /* Exposed device interfaces (.vhex.device) */
-    .vhex.device : {
+    /* Exposed device interfaces (.vhex.devices) */
+    .vhex.devices : {
         _vhex_devices_start = . ;
-        KEEP(*(.vhex.device));
+        KEEP(*(SORT_BY_NAME(.vhex.devices.*)));
         _vhex_devices_end = . ;
-    } > userram
+    }
 
     /* Read-only sections */
     .rodata : {
-        /* Read-Only data */
         *(.rodata);
         *(.rodata.*);
     } > userram
 
-    /* The GOT section is a bit exotic.
-       When I generate the PIE executable, all global variables are stored
-       is the *(.got) section and the __GLOBAL_OFFSET_TABLE__ object is
-       generated and inserted in the *(.got.plt) section.
-
-       But, neither of *(.plt*) or *(rela*) section are generated to help
-       me out for the "relocation" of each address stored in the GOT. The
-       result is that the content of the GOT is always absolute addresses,
-       which makes the machine crash.
-
-       So, the idea to bypass this limitation (probably due to the custom
-       GCC which not provide critical information for the relocation) is to
-       isolate the GOT in a standalone section and, after the loading of
-       the image, walk thought the relocalised table and manually patch
-       each address.
-
-       Moreover, the __GLOBAL_OFFSET_TABLE__ is used like a table, so, the
-       section ".got.plt" SHOULD be before the .got section. */
-    .got.plt : { *(.got.plt) *(.igot.plt) *(.igot) } > userram
-    .got     : { *(.got) } > userram
-
-    .dynamic : { *(.dynamic) } > userram
-
     /* readable / writable data */
     .data ALIGN(4) : {
-
-        /* Data sections */
         *(.data);
         *(.data.*);
     } > userram
@@ -162,7 +147,8 @@ SECTIONS
      *  +--------------+------------------+-----------+
      *
      *  But in our case, we need to place the section at the end of the
-     *  "userram" because we use the end of the `.bss` is used for malloc area.
+     *  "userram" because we use the end of the `.bss` is used for malloc
+     *  area.
      *  We also use the start of this section as a gap for interrupt gates
      *  mapped "on-the-fly" during the boot. This technique "de rat" allow
      *  us to save ~3k in the final ELF. */
@@ -173,7 +159,8 @@ SECTIONS
          * - interruption event range is [0x400;0xfa0]
          * - interruption granularity is 0x20 (0x400, 0x420, 0x440, ...)
          *
-         * So, the gap for each gates will be: (0xfa0 + 0x020) - 0x400 = 0xbc0,
+         * So, the gap for each gates will be:
+         *  (0xfa0 + 0x020) - 0x400 = 0xbc0,
          * which give us 3008 bytes. We will use 3ko. */
         . = . + 3072;
 

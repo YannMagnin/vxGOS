@@ -15,6 +15,7 @@ cflags      = [
     '-m4-nofpu',
     '-Wa,--dsp',
     '-fstrict-volatile-bitfields',
+    '-fanalyzer',
 ]
 ldflags     = [
     '-static',

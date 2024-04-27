@@ -22,7 +22,10 @@ from vxsdk.core.board._bootloader import (
     board_bootloader_initialise,
     board_bootloader_build,
 )
-#from vxsdk.core.board._kernel import board_kernel_initialise
+from vxsdk.core.board._kernel import (
+    board_kernel_initialise,
+    board_kernel_build,
+)
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BOARDS,
     CONFIG_SDK_PREFIX_BUILD,
@@ -58,7 +61,8 @@ def _board_manager_load_generator(board: str) -> dict[str,Any]:
         }
     except ImportError:
         log.emergency(
-            f"Unable to aquire the `vxgos/board/{board}/generator.py` script"
+            f"Unable to aquire the `vxgos/board/{board}/generator.py` "
+            'script'
         )
 
 #---
@@ -100,7 +104,7 @@ def board_manager_iterate() -> Generator[BoardIterInfo,None,None]:
     """
     for board in CONFIG_SDK_PREFIX_BOARDS.iterdir():
         if not board.is_dir():
-            log.warn(f"{str(board)} is not a folder, skipped")
+            log.warning(f"{str(board)} is not a folder, skipped")
             continue
         board_info = BoardIterInfo(
             is_select   = False,
@@ -124,7 +128,7 @@ def board_manager_initialise(board_name: str) -> None:
         CONFIG_SDK_PREFIX_SRCS/f"boards/{board_name}/config.toml",
     )
     board_bootloader_initialise(board_name, board_config)
-    #board_kernel_initialise(board_name, board_config)
+    board_kernel_initialise(board_name, board_config)
     #board_os_initialise(board_name, board_config)
 
 def board_manager_select(board_name: str) -> None:
@@ -152,12 +156,12 @@ def board_manager_build(
     if project_target:
         return {
             'bootloader' : board_bootloader_build,
-            #'kernel'    : board_kernel_build,
+            'kernel'     : board_kernel_build,
             #'os'        : board_os_build,
         }[project_target](board.name, board_config, generator)
     file = (
         board_bootloader_build(board.name, board_config, generator),
-        None,
+        board_kernel_build(board.name, board_config, generator),
         None,
     )
     log.user('[+] generate final image...')
