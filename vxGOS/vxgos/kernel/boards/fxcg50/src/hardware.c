@@ -3,7 +3,7 @@
 //---
 #include "vhex/driver/mpu/sh/sh7305/pfc.h"
 #include "vhex/driver/mmu.h"
-#include "boards/fxcg50/include/hardware.h"
+#include "fxcg50/hardware.h"
 #include "vhex/hardware.h"
 
 

@@ -19,10 +19,10 @@ struct vhex_module
 //---
 // Internal module control
 //
-// The following data is exposed for introspection and debugging purposes; it
-// is not part of the vhex API. There is *no stability guarantee* that the
-// following types and functions will remain unchanged in future minor and
-// patch versions.
+// The following data is exposed for introspection and debugging
+// purposes; it is not part of the vhex API. There is *no stability
+// guarantee* that the following types and functions will remain
+// unchanged in future minor and patch versions.
 //---
 
 /* Number of modules in the (vhex_modules) array */

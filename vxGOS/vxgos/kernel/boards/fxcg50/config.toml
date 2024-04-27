@@ -14,3 +14,7 @@ drivers = [
     'screen/R61524',
     'mpu/sh/sh7305',
 ]
+libraries = [
+    '-lc',
+    '-lgcc',
+]

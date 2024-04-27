@@ -32,7 +32,7 @@ struct {
 // Internal module functions
 //---
 
-VCONSTRUCTOR static void __dtext_constructor(void)
+void __dtext_constructor(void)
 {
     dtext_info.pool.number = 32;
     dtext_info.pool.idx = -1;
@@ -46,7 +46,7 @@ VCONSTRUCTOR static void __dtext_constructor(void)
     }
 }
 
-VDESTRUCTOR void __dtext_destructor(void)
+void __dtext_destructor(void)
 {
     for (int i = 0; i < dtext_info.pool.number; ++i)
         free(dtext_info.pool.text[i].raw);

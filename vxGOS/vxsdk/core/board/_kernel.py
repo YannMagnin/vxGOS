@@ -13,6 +13,8 @@ import toml
 from vxsdk.core.logger import log
 from vxsdk.core.board.exception import BoardException
 from vxsdk.core.converter.manager import converter_manager_generate
+from vxsdk.core.board._aslr import board_aslr_generate
+from vxsdk.core.board._cmake import board_cmake_build
 from vxsdk.core._config import (
     CONFIG_SDK_PREFIX_BUILD,
     CONFIG_SDK_PREFIX_SRCS,
@@ -75,7 +77,7 @@ def _board_kernel_find_srcs(
                 (prefix/f"src/{part}/{target}").rglob('*.[csS]')
             )
     return {
-        'include' : (
+        'includes' : (
             prefix/f"boards/{board_name}/include",
             prefix/'include',
         ),
@@ -93,12 +95,24 @@ def board_kernel_initialise(
     """ initialise the build information needed for the kernel
     """
     log.user('[+] loading kernel configuration')
+    linker_script_path = CONFIG_SDK_PREFIX_SRCS/'kernel/boards/'
+    linker_script_path = linker_script_path/f"{board_name}/{board_name}.ld"
+    if not linker_script_path.exists():
+        raise BoardException(
+            f"Missing linker script at '{str(linker_script_path)}'"
+        )
     if 'kernel' in board_config:
         log.warning(
             'provided kernel entries in generic board configuration '
             'will be ignored'
         )
     board_config.update(_board_kernel_load_conf(board_name))
+    for target in ('cflags', 'ldflags', 'libraries'):
+        if target not in board_config['kernel']:
+            continue
+        if target not in board_config['toolchain']:
+            board_config['toolchain'][target] = []
+        board_config['toolchain'][target] += board_config['kernel'][target]
     prefix_build = CONFIG_SDK_PREFIX_BUILD/f"{board_name}/kernel"
     prefix_build.mkdir(parents=True, exist_ok=True)
 
@@ -118,7 +132,6 @@ def board_kernel_build(
         board_name,
         board_config,
     )
-    print(compile_file)
     log.user('[+] building assets...')
     asset_library = converter_manager_generate(
         prefix_src/'assets/',
@@ -131,7 +144,18 @@ def board_kernel_build(
     board_config['toolchain']['ldflags'].append(
         f"-L{str(asset_library.parent)}",
     )
-    exit(84)
-    return Path('/tmp')
-    # (todo) : building the kernel
-    # (todo) : construct the kernel image
+    log.user('[+] building kernel...')
+    bootloader_elf = board_cmake_build(
+        'kernel',
+        prefix_build,
+        board_config,
+        compile_file,
+        prefix_src/f"boards/{board_name}/{board_name}.ld",
+    )
+    log.user('[+] construct the kernel ALSR blob...')
+    return board_aslr_generate(
+        'kernel',
+        prefix_build,
+        bootloader_elf,
+        generator,
+    )

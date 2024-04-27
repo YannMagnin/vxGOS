@@ -18,9 +18,10 @@
 
 /* Aligned variables */
 #define VALIGNED(x)         __attribute__((aligned(x)))
-/* Packed structures. I require explicit alignment because if it's unspecified,
-   GCC cannot optimize access size, and reads to memory-mapped I/O with invalid
-   access sizes silently fail - honestly you don't want this to happen */
+/* Packed structures. I require explicit alignment because if it's
+ * unspecified, GCC cannot optimize access size, and reads to memory-mapped
+ * I/O with invalid access sizes silently fail - honestly you don't want
+ * this to happen */
 #define VPACKED(x)          __attribute__((packed, aligned(x)))
 /* Packed enumerations */
 #define VPACKED_ALONE       __attribute__((packed))
@@ -29,10 +30,6 @@
 
 /* Weak symbols */
 #define VWEAK               __attribute__((weak))
-
-/* Constructors */
-#define VCONSTRUCTOR        __attribute__((constructor))
-#define VDESTRUCTOR         __attribute__((destructor))
 
 /* Functions that do not return */
 #define VNORETURN           __attribute__((noreturn))

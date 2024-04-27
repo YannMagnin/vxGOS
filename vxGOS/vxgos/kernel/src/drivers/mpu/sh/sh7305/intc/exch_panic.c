@@ -2,7 +2,7 @@
 #include <vhex/defs/types.h>
 
 /* defined by the linker script */
-extern uint32_t __kernel_reloc_start;
+extern uint32_t __kernel_code_start;
 
 void sh7305_intc_exch_panic(void)
 {
@@ -36,7 +36,7 @@ void sh7305_intc_exch_panic(void)
     dprint(6, 25, C_BLACK, "%03x %s", code, name);
 
     dtext(  6, 45, C_BLACK, "PC");
-    dprint(38, 45, C_BLACK, "= %08x", PC - (uintptr_t)&__kernel_reloc_start);
+    dprint(38, 45, C_BLACK, "= %08x", PC - (uintptr_t)&__kernel_code_start);
     dtext(261, 45, C_BLACK, "(Error location)");
 
     dtext(  6, 60, C_BLACK, "TEA");
@@ -47,7 +47,7 @@ void sh7305_intc_exch_panic(void)
     dprint(38, 75, C_BLACK, "= %#x", TRA);
     dtext(281, 75, C_BLACK, "(Trap number)");
 
-    dprint( 6, 90, C_BLACK, "reloc base = %p", &__kernel_reloc_start);
+    dprint( 6, 90, C_BLACK, "reloc base = %p", &__kernel_code_start);
 
     dtext(6, 120, C_BLACK, "An unrecoverable error occurred in the add-in.");
     dtext(6, 135, C_BLACK, "Please press the RESET button to restart the");

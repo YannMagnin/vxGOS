@@ -3,19 +3,12 @@
 */
 ENTRY(_initialize)
 
-/*
-** Linker script for user executables.
-*/
-MEMORY
-{
-    /* virtual memory, read-write segment */
-    userram (wx)    : o = 0x00000000, l = 1M
-    /* On-chip X memory */
-    xram (rwx)      : o = 0xe5007000, l = 8k
-}
-
 SECTIONS
 {
+    /*
+    ** main layout
+    */
+
     /* set the base address to zero. This is really usefull when patching
      * symbols "on-the-fly" during runtime */
     . = 0x00000000 ;
@@ -36,16 +29,15 @@ SECTIONS
         *(.text.entry);
         *(.text);
         *(.text.*);
-
-        _bctors = . ;
-        *(.ctors .ctors.*)
-        _ectors = . ;
-
-        _bdtors = . ;
-        *(.dtors .dtors.*)
-        _edtors = . ;
-
     }
+
+    /* force-disable constructor/destructor mechanism to avoid magical
+     * initialisation collision during boot
+     * */
+    .ctors : { *(.ctors .ctors.*) }
+    .dtors : { *(.dtors .dtors.*) }
+    ASSERT(SIZEOF(.dtors) == 0, "unexpected '.dtors' entries")
+    ASSERT(SIZEOF(.ctors) == 0, "unexpected '.ctors' entries")
 
     /* vhex's interrupt handler blocks (.vhex.blocks)
        Although vhex's blocks end up in VBR space, they are relocated at
@@ -77,17 +69,30 @@ SECTIONS
         _vhex_devices_end = . ;
     }
 
-    /* Read-only sections */
+    /* read-only sections */
     .rodata : {
         *(.rodata);
         *(.rodata.*);
-    } > userram
+    }
 
     /* readable / writable data */
     .data ALIGN(4) : {
         *(.data);
         *(.data.*);
-    } > userram
+    }
+
+    /* gloabal offset table
+     * We don't want/need any GOT entries, but BFD LD insert an entry
+     * ("_DYNAMIC") into '.got', as required by ABI, and three empty entry on
+     * some architecture. 
+     *
+     * (fixme) : it seems that the compiler add a lot of information here
+     * (fixme) : maybe because of the --emit-relocs */
+    .got : { *(.got.plt) *(.got) }
+    /*ASSERT(
+        SIZEOF(.got) <= (4 * 8),
+        "'.got' should contain only ABI-required entries"
+    )*/
 
     /* Vhex VBR management geometry
 
@@ -130,7 +135,7 @@ SECTIONS
         *(.vhex.inth.pretext) ;
         *(.vhex.inth) ;
 
-    } > userram
+    }
 
     /* We should place the .bss section at the end of the "userram".
      *
@@ -190,16 +195,6 @@ SECTIONS
         ___sram_start = ALIGN(16);
 
     } :NONE
-
-    /*
-    ** On-chip memory sections: X
-    */
-
-    . = ORIGIN(xram);
-    .xram ALIGN(4) : ALIGN(4) {
-        *(.vhex.xram)
-        . = ALIGN(16);
-    } > xram
 
     /*
     ** Unwanted section

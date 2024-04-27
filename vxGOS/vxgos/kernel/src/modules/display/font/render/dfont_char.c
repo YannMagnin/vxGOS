@@ -36,7 +36,7 @@ void dfont_char_render(
         glyph_size  = glyph_width * font->glyph.height;
     } else {
         glyph_width = font->glyph.mono.width;
-        glyph_size  = font->glyph.mono.storage_size;
+        glyph_size  = font->glyph.mono.char_block_size;
         glyph_shift = glyph_size * glyph_idx;
         glyph_idx   = glyph_shift >> 8;
         glyph_shift = glyph_shift & 0xff;

@@ -73,8 +73,9 @@ int dfont_glyph_index(font_t const *f, uint32_t code_point)
 /* dfont_get() : get the current font */
 font_t *dfont_get(void)
 {
-    extern font_t font8x9;
-    return &font8x9;
+    // TODO : dynamic
+    extern font_t font8x12;
+    return &font8x12;
 }
 
 /* dfont_text_geometry() : get the rendered text geometry with a given font */
