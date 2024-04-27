@@ -11,10 +11,10 @@ typedef struct font {
 
     /* Font shape flags */
     byte_union(shape,
-        uint8_t bold    :1;
-        uint8_t italic  :1;
-        uint8_t serif   :1;
-        uint8_t mono    :1;
+        uint8_t         :1;
+        uint8_t         :1;
+        uint8_t         :1;
+        uint8_t         :1;
         uint8_t         :3;
         uint8_t prop    :1;
     );
@@ -33,7 +33,7 @@ typedef struct font {
             /* For monospaced fonts */
             struct {
                 uint8_t width;
-                uint16_t storage_size;
+                uint16_t char_block_size;
             } mono;
             /* For proportional fonts */
             struct __workaround {
