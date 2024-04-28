@@ -13,23 +13,25 @@ function(__fxcp400_bootloader_start):
     ! ---
     ! *CRITICAL*
     !
-    ! The next three instructions will be patched *DURING COMPILE TIME* with
+    ! The next few instructions will be patched *DURING COMPILE TIME* with
     ! the complete image size (bootloader, ASLR, kernel, OS,...) as follows:
-    !   > mov.l os_image_size, r0
-    !   > mov.l kernel_image_offset, r1
-    !   > mov.l kernel_image_size, r2
+    !   > mov.l os_image_aslr_offset, r0
+    !   > mov.l os_image_size, r1
+    !   > mov.l kernel_image_offset, r2
+    !   > mov.l kernel_image_size, r3
     ! If not patched, the code will just return and indicate to the CFW to
     ! not restart the application.
     ! ---
 
     nop
-    rts
     mov     #1, r0
-    bra     translation_entry
+    rts
     nop
+    bra     translation_entry
     nop
 
 .long   0x00000000  ! OS image size
+.long   0x00000000  ! OS symbols table offset
 .long   0x00000000  ! kernel image offset in the image
 .long   0x00000000  ! kernel image size
 
@@ -39,6 +41,7 @@ translation_entry:
     ! prepare alias
     ! ---
 
+    #define image_aslr_table_offset r1
     #define image_reloc_base_addr   r4
     #define image_size              r5
     #define kernel_image_addr       r6
@@ -52,9 +55,10 @@ translation_entry:
     ! ---
 
     ! save patched information
-    mov     r0, image_size
-    mov     r1, kernel_image_addr
-    mov     r2, kernel_image_size
+    mov     r1, image_size
+    mov     r2, kernel_image_addr
+    mov     r3, kernel_image_size
+    mov     r0, image_aslr_table_offset
 
     ! precalculate runtime loaded address
     ! @note
@@ -67,6 +71,7 @@ translation_entry:
     shll    image_reloc_base_addr
     shlr    image_reloc_base_addr
     shlr2   image_reloc_base_addr
+    nop
 
 cache_configuration:
 
@@ -89,9 +94,9 @@ cache_configuration:
     ! - Invalidate all Operand Cache (OC) entries
     ! ---
 
-    mov.l   ccr_register_addr, r0
-    mov.l   ccr_register_data, r1
-    mov.l   r1, @r0
+    mov.l   ccr_register_addr, r2
+    mov.l   ccr_register_data, r3
+    mov.l   r3, @r2
     synco
 
 aslr_patching:
@@ -109,7 +114,7 @@ aslr_patching:
 
     ! The table symbol is not already resolved (its our job), we must
     ! manually calculate the real address of the symbols table
-    mov.l   bootloader_code_end, r0
+    mov     image_aslr_table_offset, r0
     mov.l   p1_addr_base, r1
     mov.l   p2_addr_base, r2
     or      image_reloc_base_addr, r2
@@ -181,7 +186,6 @@ bootloader_panic:
 .balign 4
 
 bootloader_main:        .long _bootloader_main
-bootloader_code_end:    .long ___bootloader_code_end
 p2_addr_base:           .long 0xa0000000
 p1_addr_base:           .long 0x80000000
 ccr_register_addr:      .long 0xff00001c

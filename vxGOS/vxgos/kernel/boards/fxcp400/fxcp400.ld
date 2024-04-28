@@ -1,7 +1,6 @@
 /*
     Linker script for the fxcg50 platform.
 */
-ENTRY(_initialize)
 
 SECTIONS
 {
@@ -9,12 +8,9 @@ SECTIONS
     ** main layout
     */
 
-    /* set the base address to zero. This is really usefull when patching
+    /* set the base address to zero. This is really useful when patching
      * symbols "on-the-fly" during runtime */
     . = 0x00000000 ;
-
-    /* used for the self-patching step if needed */
-    ___kernel_code_start = . ;
 
     /* explicitly isolate the "pre text" code which should be executed
      * first */
@@ -101,23 +97,23 @@ SECTIONS
          The handlers should reside at VBR relative position, in P1 or P2
        protected space (0x8* or 0xA*). For our case, the bootloader will
        relocalise the kernel at the P1 area using the Casio's UTLB
-       information. So, we don't have to wories about this here.
+       information. So, we don't have to worries about this here.
 
          There are 3 vectors offset called by the processor : VBR + 0x100,
        0x400 and 0x600. The first offset is involved when an exception
        occur, the second when a memory (TLB) error is detected and the last
        when an interruptions is detected.
 
-         All exception and memory interuption will be handled "normaly" : a
+         All exception and memory interruption will be handled "normally" : a
        simple handler will be involved which will try to resolve/fix the
        problem, if nothing can be fixed, a panic screen will be displayed.
 
-         However, regarding interuptions, we will use a power-full and
-       complexe technique to compact as most as possible the VBR size. To
+         However, regarding interruptions, we will use a power-full and
+       complex technique to compact as most as possible the VBR size. To
        explain the technique we need to know that each interruption start at
        offset VBR + 0x600 and each interrupt source is "gapped" by 0x20 (
-       for exemple the 0x400 is for TMU0, 0x420 is for TMU1 and 0x440 is for
-       TMU2) Moreover, we have some "hole" in the "interrup map".
+       for example the 0x400 is for TMU0, 0x420 is for TMU1 and 0x440 is for
+       TMU2) Moreover, we have some "hole" in the "interruption map".
        So, the idea is to write all interrupt handler in "blocks" of 32
        bytes, and, for those that 32 bytes is to short, can use hole of the
        interrupt map. */

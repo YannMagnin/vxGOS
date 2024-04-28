@@ -28,6 +28,15 @@ def _patch_got_section(symfile: Any, section: list[str]) -> None:
             symfile.write((got_base_addr + i).to_bytes(4, 'big'))
         break
 
+def _patch_uint32(image: bytearray, offset: int, data: int) -> None:
+    """ patch uint32_t at offset
+    """
+    image[offset + 0] = (data & 0xff000000) >> 24
+    image[offset + 1] = (data & 0x00ff0000) >> 16
+    image[offset + 2] = (data & 0x0000ff00) >> 8
+    image[offset + 3] = (data & 0x000000ff) >> 0
+
+
 #---
 # Public
 #---
@@ -52,7 +61,7 @@ def generate_aslr_blob(
     """
     raw_file    = prefix_build/f"{project_name}.raw"
     symtab_file = prefix_build/f"{project_name}.symtab"
-    bzimg_file  = prefix_build/f"{project_name}.bzImage"
+    bzimg_file  = prefix_build/f"{project_name}.img"
 
     print('- generate raw binary...')
     utils_cmd_exec(
@@ -91,12 +100,17 @@ def generate_aslr_blob(
         symfile.write(int('00000000', base=16).to_bytes(4, 'big'))
 
     print('- generate the bootloader blob...')
+    bootloader_blob = bytearray(0)
+    with open(raw_file, 'rb') as rawbinfile:
+        bootloader_blob += rawbinfile.read()
+        _patch_uint32(bootloader_blob, 12, len(bootloader_blob))
+        bootloader_blob[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
+        bootloader_blob[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
+    with open(symtab_file, 'rb') as symtabfile:
+        bootloader_blob += symtabfile.read()
     bzimg_file.unlink(missing_ok=True)
     with open(bzimg_file, 'xb') as bzimgfile:
-        with open(raw_file, 'rb') as rawbinfile:
-            bzimgfile.write(rawbinfile.read())
-        with open(symtab_file, 'rb') as symtabfile:
-            bzimgfile.write(symtabfile.read())
+        bzimgfile.write(bootloader_blob)
     return bzimg_file
 
 def generate_final_image(
@@ -121,25 +135,25 @@ def generate_final_image(
         image += blob
     image_size = len(image)
 
-    log.user('- patching first two instruction of the image...')
-    image[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
-    image[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
-    image[2]  = 0b11010001   # (MSB) mov.l @(3, PC), r1
+    log.user('- patching first instructions of the image...')
+    image[2]  = 0b11010001   # (MSB) mov.l @(2, PC), r1
     image[3]  = 0b00000011   # (LSB) mov.l @(3, PC), r1
-    image[4]  = 0b11010010   # (MSB) mov.l @(3, PC), r2
-    image[5]  = 0b00000011   # (LSB) mov.l @(3, PC), r2
-    image[12] = (image_size & 0xff000000) >> 24
-    image[13] = (image_size & 0x00ff0000) >> 16
-    image[14] = (image_size & 0x0000ff00) >> 8
-    image[15] = (image_size & 0x000000ff) >> 0
-    image[16] = (kernel_info[0] & 0xff000000) >> 24
-    image[17] = (kernel_info[0] & 0x00ff0000) >> 16
-    image[18] = (kernel_info[0] & 0x0000ff00) >> 8
-    image[19] = (kernel_info[0] & 0x000000ff) >> 0
-    image[20] = (kernel_info[1] & 0xff000000) >> 24
-    image[21] = (kernel_info[1] & 0x00ff0000) >> 16
-    image[22] = (kernel_info[1] & 0x0000ff00) >> 8
-    image[23] = (kernel_info[1] & 0x000000ff) >> 0
+    image[4]  = 0b11010010   # (MSB) mov.l @(4, PC), r2
+    image[5]  = 0b00000100   # (LSB) mov.l @(4, PC), r2
+    image[6]  = 0b11010011   # (MSB) mov.l @(3, PC), r3
+    image[7]  = 0b00000011   # (LSB) mov.l @(3, PC), r3
+    image[16] = (image_size & 0xff000000) >> 24
+    image[17] = (image_size & 0x00ff0000) >> 16
+    image[18] = (image_size & 0x0000ff00) >> 8
+    image[19] = (image_size & 0x000000ff) >> 0
+    image[20] = (kernel_info[0] & 0xff000000) >> 24
+    image[21] = (kernel_info[0] & 0x00ff0000) >> 16
+    image[22] = (kernel_info[0] & 0x0000ff00) >> 8
+    image[23] = (kernel_info[0] & 0x000000ff) >> 0
+    image[24] = (kernel_info[1] & 0xff000000) >> 24
+    image[25] = (kernel_info[1] & 0x00ff0000) >> 16
+    image[26] = (kernel_info[1] & 0x0000ff00) >> 8
+    image[27] = (kernel_info[1] & 0x000000ff) >> 0
 
     log.user('- generating the kernel image (final)...')
     bzimage_path = prefix_build/'vxgos.img'

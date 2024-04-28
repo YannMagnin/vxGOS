@@ -48,6 +48,11 @@ int console_buffer_in_uninit(struct console *console)
         console->input.buffer.size
     );
 
+    /* remove the new-line before the EOL to have the same behaviour than
+     * readline() */
+    console->input.buffer.size -= 1;
+    console->input.buffer.data[console->input.buffer.size] = '\0';
+
     /* reset buffer information and quit */
     readed = console->input.buffer.size;
     console->input.buffer.data = NULL;
