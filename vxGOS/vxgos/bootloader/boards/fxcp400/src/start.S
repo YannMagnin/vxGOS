@@ -119,7 +119,9 @@ aslr_patching:
     mov.l   p2_addr_base, r2
     or      image_reloc_base_addr, r2
     or      image_reloc_base_addr, r1
+    or      r1, image_reloc_base_addr
     add     r2, r0
+    add     image_reloc_base_addr, kernel_image_addr
 
     ! walk trough the symbols table and patch all location
     ! @note
@@ -163,7 +165,7 @@ bootloader_c_invokation:
     mov     kernel_image_size, r7
     mov.l   bootloader_main, r0
     jsr     @r0
-    add     r4, r6
+    nop
 
     ! ---
     ! bootloader panic

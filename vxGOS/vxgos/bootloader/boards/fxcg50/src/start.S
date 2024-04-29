@@ -33,6 +33,7 @@ function(__fxcg50_bootloader_start):
     ! The table symbol is not aready resolved (its our job), we must manually
     ! calculate the real address of the symbols table
     ! @register
+    ! - r2  - (out) kernel entry address (P1)
     ! - r5  - (in) URAM address
     ! - r7  - (out) URAM address (P1)
     ! - r8  - tempo
@@ -41,7 +42,9 @@ function(__fxcg50_bootloader_start):
     mov.l   data_a0000000, r8
     or      r5, r7
     or      r5, r8
+    or      r7, r5
     add     r8, r0
+    add     r7, r2
 
     ! walk trough the symbols table and patch all location
     ! @note
@@ -99,7 +102,7 @@ bootloader_c_invokation:
     mov     r3, r7
     mov.l   bootloader_main, r0
     jsr     @r0
-    add     r4, r6
+    nop
 
     ! ---
     ! bootloader panic
