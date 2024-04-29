@@ -30,8 +30,8 @@ function(__fxcp400_bootloader_start):
     bra     translation_entry
     nop
 
-.long   0x00000000  ! OS image size
 .long   0x00000000  ! OS symbols table offset
+.long   0x00000000  ! OS image size
 .long   0x00000000  ! kernel image offset in the image
 .long   0x00000000  ! kernel image size
 
