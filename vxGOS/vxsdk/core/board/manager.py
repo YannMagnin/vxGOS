@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import os
 import sys
+import shutil
 
 from vxsdk.core.logger import log
 from vxsdk.core.board.exception import BoardException
@@ -135,7 +136,14 @@ def board_manager_select(board_name: str) -> None:
     """ select a new board
     """
     if not (CONFIG_SDK_PREFIX_BUILD/board_name).exists():
-        board_manager_initialise(board_name)
+        try:
+            board_manager_initialise(board_name)
+        except BoardException as err:
+            shutil.rmtree(
+                path            = CONFIG_SDK_PREFIX_BUILD/board_name,
+                ignore_errors   = True,
+            )
+            raise err
     selected = CONFIG_SDK_PREFIX_BUILD/'SELECT'
     selected.unlink(missing_ok=True)
     selected.symlink_to(CONFIG_SDK_PREFIX_BUILD/board_name)

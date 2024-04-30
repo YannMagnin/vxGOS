@@ -1,62 +1,41 @@
 """
 vxsdk.core.converter._font._bootloader   - bootloader generator
 """
+from __future__ import annotations
+
 __all__ = [
     'font_bootloader_generate_source_file',
 ]
-from typing import Any
+from typing import TYPE_CHECKING
 
 from vxsdk.core.logger import log
+
+# bad design here
+# @note
+# The `ConvAssetFont` invoke this module with itself as a first argument,
+# so, if we want to use proper typing information (and not just `Any`), we
+# must use this dirty workaround to import the class only if a type
+# checking is performed.
+# However, we must import the special `__future__.annotations` which allow
+# partial defined classes to be used as typing information.
+if TYPE_CHECKING:
+    from vxsdk.core.converter._font.font import ConvAssetFont
 
 #---
 # Internals
 #---
 
-## endian abstraction
-
-def _u32_conv_little_endian(x32: int) -> int:
-#    return ((x32 & 0xff000000) >> 24)   \
-#            | ((x32 & 0x00ff0000) >> 8) \
-#            | ((x32 & 0x0000ff00) << 8) \
-#            | ((x32 & 0x000000ff) << 24)
-    return x32
-
-def _u32_conv_big_endian(x32: int) -> int:
-    return x32
-
 ## generation functions
 
-def _font_bootloader_generate_normal_source(
-    asset: Any,
-    endianness: str,
-) -> str:
+def _font_bootloader_generate_normal_source(asset: ConvAssetFont) -> str:
     """ Print chaset is a image file
-
-    Generate a C font file content based on bootloader font internal
-    structure and header declaration.
-
-    @args
-    > asset  (VxAsset) - asset information
-    > info      (dict) - hold font information
-    > endianness (str) - selected endianness encoding
-
-    @return
-    > complet font file content
     """
-    # generate basic header
     content  =  '#include "bootloader/display.h"\n'
     content +=  '\n'
     content += f"/* {asset.name} - Vhex asset\n"
     content +=  '   This object has been converted by using the vxSDK '
     content +=  'converter */\n'
     content += f"struct font const {asset.name} = " + "{\n"
-
-    # handle endianness
-    u32 = _u32_conv_little_endian
-    if endianness != 'little':
-        u32 = _u32_conv_big_endian
-
-    # encode font bitmap
     line = 0
     log.debug(f"data = {asset.data}")
     content +=  "    .data = (uint32_t[]){\n"
@@ -65,22 +44,18 @@ def _font_bootloader_generate_normal_source(
             content += '        '
         if line >= 1:
             content += ' '
-        content += f"{u32(pixel):#010x},"
+        content += f"{pixel:#010x},"
         if (line := line + 1) == 6:
             content += '\n'
             line = 0
     if line != 0:
         content += '\n'
     content +=  '    },\n'
-
-    # indicate other font information
     content += f"    .count           = {asset.glyph_count},\n"
     content += f"    .height          = {asset.glyph_height},\n"
     content += f"    .width           = {asset.grid_size_x},\n"
     content += f"    .line_height     = {asset.line_height},\n"
     content += f"    .char_block_size = {asset.glyph_size},\n"
-
-    # closure and return
     content += '};\n'
     return content
 
@@ -89,8 +64,8 @@ def _font_bootloader_generate_normal_source(
 #---
 
 def font_bootloader_generate_source_file(
-    asset: Any,
-    endianness: str,
+    asset: ConvAssetFont,
+    _endianness: str,
 ) -> str:
     """ Generate font source file content
     """
@@ -98,4 +73,4 @@ def font_bootloader_generate_source_file(
         log.emergency(f"{asset.name}: unsupported proportional font")
     if asset.charset == 'unicode':
         log.emergency(f"{asset.name}: unsupported unicode font")
-    return _font_bootloader_generate_normal_source(asset, endianness)
+    return _font_bootloader_generate_normal_source(asset)

@@ -91,38 +91,48 @@ struct console
 //---
 
 /* console_open() : open console */
-extern int console_open(struct console *console);
+extern int console_open(void);
 
-/* console_write() : printf-like write primitive (support line discipline) */
-extern int console_write(struct console *console, char const *format, ...);
+/* console_write() : printf-like write primitive (with line discipline) */
+extern int console_write(char const *format, ...);
 
 /* console_read() : console read primitive */
-extern int console_read(struct console *console, void *buffer, size_t nb);
+extern int console_read(void *buffer, size_t nb);
 
-/* console_vwrite() : printf wrapper for the terminal device with va_list */
-extern int console_vwrite(struct console *console, const char *f, va_list ap);
+/* console_vwrite() : same as `console_write()` but with va_list */
+extern int console_vwrite(const char *format, va_list ap);
 
 /* console_close() : close console */
-extern int console_close(struct console *console);
+extern int console_close(void);
 
 
 //---
 // Low-level API
 //---
 
+// ouput buffer
+
 /* console_buffer_out_reset() : reset output buffer */
 extern int console_buffer_out_reset(struct console *console);
 
-/* console_buffer_out_insert() : insert string anywhere in the output buffer */
-extern int console_buffer_out_insert(struct console *c, char *b, size_t nb);
+/* console_buffer_out_insert() : insert anywhere in the output buffer */
+extern int console_buffer_out_insert(
+    struct console *console,
+    char *buffer,
+    size_t nb
+);
 
 /* console_buffer_out_display() : display the output buffer on screen */
 extern int console_buffer_out_display(struct console *console);
 
-
+// input buffer
 
 /* console_buffer_in_init() : initialize the input buffer */
-extern int console_buffer_in_init(struct console *console, void *b, size_t n);
+extern int console_buffer_in_init(
+    struct console *console,
+    void *buffer,
+    size_t n
+);
 
 /* console_buffer_in_uninit() : uninit input buffer and quit */
 extern int console_buffer_in_uninit(struct console *console);
@@ -131,7 +141,10 @@ extern int console_buffer_in_uninit(struct console *console);
 extern void console_buffer_in_reset(struct console *console);
 
 /* console_buffer_in_cursor_move() : move cursor in on direction */
-extern void console_buffer_in_cursor_move(struct console *console, int dir);
+extern void console_buffer_in_cursor_move(
+    struct console *console,
+    int direction
+);
 
 /* console_buffer_in_display() : display input buffer */
 extern void console_buffer_in_display(struct console *console);
@@ -139,10 +152,10 @@ extern void console_buffer_in_display(struct console *console);
 /* console_buffer_in_remove(): Remove character based on cursor position */
 extern void console_buffer_in_remove(struct console *console);
 
-/* console_buffer_in_insert() - Insert character based on cursor position */
+/* console_buffer_in_insert() - Insert character at cursor position */
 extern int console_buffer_in_insert(struct console *console, char n);
 
-
+// line discipline
 
 /* console_line_discipline() - Check "special" char */
 extern int console_line_discipline(
@@ -152,7 +165,7 @@ extern int console_line_discipline(
     unsigned int *y
 );
 
-
+// keyboard
 
 /* console_key_get() : get current pressed key */
 extern int console_key_get(void);
