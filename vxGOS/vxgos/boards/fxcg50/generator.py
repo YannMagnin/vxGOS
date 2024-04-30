@@ -60,7 +60,7 @@ def generate_aslr_blob(
     """
     raw_file    = prefix_build/f"{project_name}.raw"
     symtab_file = prefix_build/f"{project_name}.symtab"
-    bzimg_file  = prefix_build/f"{project_name}.bzImage"
+    bzimg_file  = prefix_build/f"{project_name}.img"
 
     print('- generate raw binary...')
     utils_cmd_exec(
@@ -156,10 +156,10 @@ def generate_final_image(
     image[27] = (kernel_info[1] & 0x000000ff) >> 0
 
     log.user('- generating the raw image...')
-    bzimage_path = prefix_build/'vxgos.img'
-    bzimage_path.unlink(missing_ok=True)
-    with open(bzimage_path, 'xb') as bzimage:
-        bzimage.write(image)
+    img_path = prefix_build/'vxgos.img'
+    img_path.unlink(missing_ok=True)
+    with open(img_path, 'xb') as img:
+        img.write(image)
 
     log.user('- generating the G3A final file...')
     prefix_board = str(Path(f"{__file__}/..").resolve())

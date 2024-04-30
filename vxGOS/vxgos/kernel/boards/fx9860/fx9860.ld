@@ -1,5 +1,5 @@
 /*
-    Linker script for the fxcg50 platform.
+    Linker script for the fx9860 platform.
 */
 
 SECTIONS
@@ -83,7 +83,7 @@ SECTIONS
     /* gloabal offset table
      * We don't want/need any GOT entries, but BFD LD insert an entry
      * ("_DYNAMIC") into '.got', as required by ABI, and three empty entry on
-     * some architecture. 
+     * some architecture.
      *
      * (fixme) : it seems that the compiler add a lot of information here
      * (fixme) : maybe because of the --emit-relocs */
@@ -179,16 +179,11 @@ SECTIONS
         /* Video RAM symbols
 
            The Video RAM contains a full pixel sized frame for the
-           screen. Its size is 396x224 and each pixel depth is 16bits,
-           so (3996 * 224) * 2 = 177408
+           screen. Its size is 128x64 and each pixel depth is 1bits,
+           so (128 * 64) / 8 = 1024 */
 
-           Thus, we use a double buffering methods to speed-up the
-           render, this is why we define two VRAM */
-
-        _vhex_vram0 = ALIGN(32);
-        . = _vhex_vram0 + 177408;
-        _vhex_vram1 = ALIGN(32);
-        . = _vhex_vram1 + 177408;
+        _vhex_vram = ALIGN(32);
+        . = _vhex_vram + 1024;
 
         /* static ram start (for kmalloc) */
         ___sram_start = ALIGN(16);

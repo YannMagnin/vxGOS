@@ -5,7 +5,7 @@ endianness  = 'big'
 cflags      = [
     '-Wall',
     '-Wextra',
-    '-D__SUPPORT_FXCG50__',
+    '-D__SUPPORT_FXCP400__',
     '-D_FORTIFY_SOURCE=0',
     '-ffreestanding',
     '-nostdlib',

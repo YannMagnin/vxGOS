@@ -1,4 +1,12 @@
-#include "fxcg50/asm_utils.h"
+#if defined(__SUPPORT_FX9860__)
+# include "fx9860/asm_utils.h"
+#elif defined(__SUPPORT_FXCG50__)
+# include "fxcg50/asm_utils.h"
+#elif defined(__SUPPORT_FXCP400__)
+# include "fxcp400/asm_utils.h"
+#else
+# error "unsupported device"
+#endif
 
 .section    .bootloader.text, "ax"
 

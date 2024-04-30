@@ -156,8 +156,8 @@ def generate_final_image(
     image[27] = (kernel_info[1] & 0x000000ff) >> 0
 
     log.user('- generating the kernel image (final)...')
-    bzimage_path = prefix_build/'vxgos.img'
-    bzimage_path.unlink(missing_ok=True)
-    with open(bzimage_path, 'xb') as bzimage:
-        bzimage.write(image)
-    return bzimage_path
+    img_path = prefix_build/'vxgos.img'
+    img_path.unlink(missing_ok=True)
+    with open(img_path, 'xb') as img:
+        img.write(image)
+    return img_path
