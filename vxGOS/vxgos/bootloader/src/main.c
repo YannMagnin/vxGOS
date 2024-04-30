@@ -18,6 +18,7 @@ int bootloader_main(
     size_t      kernel_image_size
 ) {
     char buffer[128];
+    int ret;
 
     //TODO : check special key pressed, if not simply boot the kernel
 
@@ -38,17 +39,23 @@ int bootloader_main(
         kernel_image_size
     );
 
+    ret = 0;
     while (1) {
-        console_write(">");
+        if (ret == 0) {
+            console_write(">");
+        } else {
+            console_write("[%d]>", ret);
+        }
         console_read(buffer, 128);
         if (buffer[0] == 'b' && buffer[1] == '\0')
             break;
         if (strcmp("boot", buffer) == 0)
             break;
+        ret = command_exec(buffer);
     }
 
     console_write("booting kernel...\n");
-    int ret = ((int(*)(uintptr_t,size_t))kernel_image_base_addr)(
+    ret = ((int(*)(uintptr_t,size_t))kernel_image_base_addr)(
         kernel_image_base_addr,
         kernel_image_size
     );

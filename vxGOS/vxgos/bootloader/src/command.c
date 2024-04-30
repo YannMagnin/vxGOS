@@ -1,5 +1,8 @@
-#if 0
-#include "bootloader/command.c"
+#include <stdint.h>
+#include <string.h>
+
+#include "bootloader/command.h"
+#include "bootloader/console.h"
 
 //---
 // Internals
@@ -17,7 +20,7 @@ static int _command_next(struct bootloader_cmd **cmd)
         return -1;
     if (cmd[0] == NULL) {
         cmd[0] = (struct bootloader_cmd*)&__bootloader_cmd_array_start;
-        return 0
+        return 0;
     }
     cmd[0] = &(cmd[0][1]);
     if ((uintptr_t)cmd[0] >= (uintptr_t)&__bootloader_cmd_array_end) {
@@ -33,10 +36,10 @@ static int _command_help(void)
     struct bootloader_cmd *cmd;
 
     cmd = NULL;
-    console_print("b\t- boot the kernel image\n");
+    console_write("b\t- boot the kernel image\n");
     while (_command_next(&cmd) == 0)
     {
-        console_print("%s\t- %s\n", cmd->name, cmd->desc);
+        console_write("%s\t- %s\n", cmd->name, cmd->desc);
     }
     return 0;
 }
@@ -63,8 +66,8 @@ int command_exec(char const * const command)
 
 /* declare generic "?" command */
 VCMD_DECLARE(
+    help_cmd,
     .name   = "?",
     .desc   = "list all commands",
     .func   = &_command_help,
 );
-#endif

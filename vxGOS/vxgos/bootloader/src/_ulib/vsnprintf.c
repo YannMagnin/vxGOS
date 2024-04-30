@@ -25,6 +25,22 @@ static int __buffer_inj_char(struct __snprintf_core *core, char c)
     return -1;
 }
 
+/* __buffer_inj_str() : inject string */
+static int __buffer_inj_str(
+    struct __snprintf_core *core,
+    char const * const text
+) {
+    int ret;
+
+    for (int i = 0 ; text[i] != '\0' ; ++i)
+    {
+        ret = __buffer_inj_char(core, text[i]);
+        if (ret != 0)
+            return ret;
+    }
+    return 0;
+}
+
 /* __buffer_inj_ptr() : inject ptr */
 static int __buffer_inj_ptr(struct __snprintf_core *core, uintptr_t ptr)
 {
@@ -48,8 +64,11 @@ static int __buffer_inj_ptr(struct __snprintf_core *core, uintptr_t ptr)
 }
 
 /* __buffer_inj_digit() : inject number */
-static int __buffer_inj_digit(struct __snprintf_core *core, int nb, bool patch)
-{
+static int __buffer_inj_digit(
+    struct __snprintf_core *core,
+    int nb,
+    bool patch
+) {
     if (patch && nb == 0)
         return 0;
     if (__buffer_inj_digit(core, nb / 10, true) != 0)
@@ -93,7 +112,12 @@ int vsnprintf(char *buffer, size_t sz, char const *format, va_list ap)
             case 'd':
                 exit = __buffer_inj_digit(&core, va_arg(ap, int), false);
                 break;
-
+            case 's':
+                exit = __buffer_inj_str(&core, va_arg(ap, char *));
+                break;
+            default:
+                exit = __buffer_inj_char(&core, format[0]);
+                exit = __buffer_inj_char(&core, format[1]);
         }
         format = &format[2];
     }

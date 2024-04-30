@@ -32,6 +32,13 @@ SECTIONS
         *(.rodata.*)
     }
 
+    /* registered bootloader commands */
+    .bootloader_cmd ALIGN(8) : {
+        ___bootloader_cmd_array_start = . ;
+        *(.bootloader_cmd)
+        ___bootloader_cmd_array_end = . ;
+    }
+
     /* uninitialized globals (must be 16-aligned) */
     .bss ALIGN(16) (NOLOAD) : {
         *(.bss)

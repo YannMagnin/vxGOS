@@ -70,10 +70,10 @@ int console_key_handle(struct console *console, int key)
         KEY_5,      KEY_6,     KEY_7,     KEY_8,   KEY_9,
         KEY_PLUS,   KEY_MINUS, KEY_MUL,   KEY_DIV, KEY_LEFTP,
         KEY_RIGHTP, KEY_COMMA, KEY_POWER, KEY_DOT, KEY_Z,
-        KEY_Y,
+        KEY_Y,      KEY_X,
         KEY_UNUSED,
     };
-    static const char keylist_num_char[] = "0123456789+-x/(),^.|_";
+    static const char keylist_num_char[] = "0123456789+-x/(),^.|_?";
     const uint8_t *keycode_list;
     char character;
     int i;
