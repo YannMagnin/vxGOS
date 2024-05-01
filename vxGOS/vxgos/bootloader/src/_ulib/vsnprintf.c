@@ -63,6 +63,37 @@ static int __buffer_inj_ptr(struct __snprintf_core *core, uintptr_t ptr)
     return 0;
 }
 
+/* __buffer_inj_hex() : display hex */
+static int __buffer_inj_hex(struct __snprintf_core *core, uint32_t data)
+{
+    char buffer[10];
+    int ret;
+    int tempo;
+    int n;
+    int i;
+
+    i = 0;
+    do {
+        tempo = data & 0x0f;
+        if (tempo >= 10) {
+            n = 'A' + (tempo - 10);
+        } else {
+            n = '0' + tempo;
+        }
+        buffer[i] = n;
+        data = data >> 4;
+        i += 1;
+    } while(data != 0x00000000);
+    i -= 1;
+    while (i >= 0) {
+        ret = __buffer_inj_char(core, buffer[i]);
+        if (ret != 0)
+            return ret;
+        i -= 1;
+    }
+    return 0;
+}
+
 /* __buffer_inj_digit() : inject number */
 static int __buffer_inj_digit(
     struct __snprintf_core *core,
@@ -105,6 +136,9 @@ int vsnprintf(char *buffer, size_t sz, char const *format, va_list ap)
                 break;
             case '%':
                 exit = __buffer_inj_char(&core, '%');
+                break;
+            case 'x':
+                exit = __buffer_inj_hex(&core, va_arg(ap, uintptr_t));
                 break;
             case 'p':
                 exit = __buffer_inj_ptr(&core, va_arg(ap, uintptr_t));
