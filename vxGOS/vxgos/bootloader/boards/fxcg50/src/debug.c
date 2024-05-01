@@ -1,4 +1,3 @@
-#if 0
 #include <stdbool.h>
 
 #include "bootloader/display.h"
@@ -26,4 +25,3 @@ void debug_main(void)
         keycode = keysc_fetch();
     }
 }
-#endif

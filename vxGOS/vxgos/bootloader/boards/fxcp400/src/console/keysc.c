@@ -1,7 +1,16 @@
 #include <stdbool.h>
 
 #include "bootloader/console.h"
-#include "fxcp400/keycode.h"
+
+#if defined(__SUPPORT_FX9860__)
+# include "fx9860/keycode.h"
+#elif defined(__SUPPORT_FXCG50__)
+# include "fxcg50/keycode.h"
+#elif defined(__SUPPORT_FXCP400__)
+# include "fxcp400/keycode.h"
+#else
+# error "unsupported device"
+#endif
 
 //---
 // Internlas
