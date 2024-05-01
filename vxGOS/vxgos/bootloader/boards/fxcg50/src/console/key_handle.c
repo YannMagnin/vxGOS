@@ -60,16 +60,18 @@ int console_key_handle(struct console *console, int key)
         KEY_7, KEY_8, KEY_9,
         KEY_4, KEY_5, KEY_6, KEY_MUL, KEY_DIV,
         KEY_1, KEY_2, KEY_3, KEY_PLUS, KEY_MINUS,
-        KEY_0, 0xff
+        KEY_0,
+        KEY_UNUSED,
     };
     static const uint8_t keylist_num[] = {
         KEY_0, KEY_1, KEY_2, KEY_3, KEY_4,
         KEY_5, KEY_6, KEY_7, KEY_8, KEY_9,
         KEY_PLUS, KEY_MINUS, KEY_MUL, KEY_DIV,
         KEY_LEFTP, KEY_RIGHTP, KEY_COMMA, KEY_POWER,
-        KEY_DOT, KEY_FD, KEY_ARROW, 0xff
+        KEY_DOT, KEY_FD, KEY_ARROW, KEY_MENU,
+        KEY_UNUSED,
     };
-    static const char keylist_num_char[] = "0123456789+-x/(),^.|_";
+    static const char keylist_num_char[] = "0123456789+-x/(),^.|_?";
     const uint8_t *keycode_list;
     char character;
     int i;
