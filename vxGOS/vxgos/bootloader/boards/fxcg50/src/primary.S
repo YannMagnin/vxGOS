@@ -2,8 +2,6 @@
 # include "fx9860/asm_utils.h"
 #elif defined(__SUPPORT_FXCG50__)
 # include "fxcg50/asm_utils.h"
-#elif defined(__SUPPORT_FXCP400__)
-# include "fxcp400/asm_utils.h"
 #else
 # error "unsupported device"
 #endif
@@ -11,15 +9,26 @@
 .section    .bootloader.pre_text, "ax"
 
 /* ___fxcg50_initialize() : bootstrap routine
-
-We are currently virtualised as a common program (addin) at 0x00300000, but
-the code currently executed is physically fragmented through the ROM.
-So, we cannot perform ASLR self-relocation here.
-
-The first thing we need to do is find the "user" RAM allocated by Casio (by
-analyzing the TLB) and then performs a "self-translation" into this place.
-After that, we will be able to perform ASLR self-relocation and classic
-"kernel" bootstrapping.. */
+ *
+ * This routine is mutual between the FXC50 and FX98060, which have an exact
+ * same starting runtime environment.
+ *
+ * We are currently virtualized as a common program (addin) at 0x00300000,
+ * but the code currently executed is physically fragmented through the ROM.
+ * Therefore, we cannot perform ASLR self-relocation here since we cannot
+ * write on ourselves.
+ *
+ * The first thing we need to do (and this is what this code does) is to find
+ * the physical address of the "user" RAM (URAM). This is a "safe" RAM area
+ * allocated by Casio for each addin.
+ *
+ * To do this, we will analyze the UTLB and try to find the virtual address
+ * 0x08100000, which is where Casio always maps the URAM. After finding all
+ * information about the memory (physical address and size), we will perform
+ * a "self-translation" (copy ourselves) into this new (writable) place.
+ *
+ * After that, we will be able to perform ASLR self-relocation and classic
+ * "kernel" bootstrapping stuff since we will be in RAM. */
 
 function(__fxcg50_primary_bootloader):
 
@@ -27,7 +36,8 @@ function(__fxcg50_primary_bootloader):
     ! *CRITICAL*
     !
     ! The next few instructions will be patched *DURING COMPILE TIME* with
-    ! the complete image size (bootloader, ASLR, kernel, OS,...) as follows:
+    ! the complete image information (bootloader, ASLR, kernel, OS,...) as
+    ! follows:
     !
     !   > mov.l os_image_aslr_offset, r0
     !   > mov.l os_image_size, r1
@@ -55,8 +65,8 @@ translation_entry:
     ! ---
     ! Save critical information
     !
-    ! Calculate the runtime loaded address of the addin and save the
-    ! compile-time image size information
+    ! Calculate the runtime address of the addin and save all "compile-time"
+    ! information
     ! ---
 
     #define image_aslr_table_offset r0
@@ -79,13 +89,12 @@ cache_configuration:
     ! Configure cache
     !
     ! This is a critical part because we will move to the URAM and perform
-    ! self-patching symbols during our execution. So, we need to have a
-    ! consistent cache behavior to help the MPU follow our instructions.
+    ! various self-patching operations during our execution. Therefore, we
+    ! need to ensure a consistent cache behavior to assist the MPU in
+    ! following our instructions.
     !
     ! The SH7305 has a special register for that called Cache Control
-    ! Register (CCR), and it seems tobe the same as SH7724 (except that no
-    ! official POC or information can invalidate the instruction Cache (IC)
-    ! without causing the machine to crash):
+    ! Register (CCR), and it seems to be the same as the SH7724:
     !
     ! - Indicate that P1 area use the "Write-back" method
     ! - Indicate that P0/P3 areas use the "Write-through" method
@@ -104,23 +113,18 @@ utlb_fetch_uram_info:
     ! ---
     ! UTLB scan to find URAM information
     !
-    ! As explained above, we first need to find the user RAM given by Casio
-    ! for our application, as we know that is an unused and stable space
-    ! for us.
+    ! As explained above, we first need to find the URAM provided by Casio
+    ! for our application, which we know is an unused and stable space for
+    ! us.
     !
-    ! We will scan each TLB entry to find the user's RAM. The memory is
+    ! We will scan each UTLB entry to find the user's RAM. The memory is
     ! virtually mapped by Casio using the same historical virtual address:
-    ! 0x08100000. Also, all the given RAM is entierly (?) mapped by the
-    ! operating system. Thus, we walk through the TLB until we don't find the
-    ! next memory fragment; this will allow us to find the size of the RAM
-    ! (which varies between models and emulators).
+    ! 0x08100000. Also, all the allocated RAM is entirely mapped by the
+    ! operating system.
     !
-    ! We will also take advantage of the fact that Casio *MAP* the virtual
-    ! address 0x00000000 (NULL) for no valid reason. So, if we find this
-    ! mapping, we will invalidate it to be sure that a NULL manipulated
-    ! pointer will cause a TLBmiss exception.
-    !
-    ! (todo) : invalidate the NULL page
+    ! We will walk through the UTLB until we don't find the next memory
+    ! fragment; this will allow us to find the size of the RAM (which varies
+    ! between models and emulators).
     !
     ! @registers
     ! - r0  reserved
@@ -181,7 +185,6 @@ utlb_walk_loop:
     ! - "UTLB Address Array" (p239) - Figure 7.14
     ! - we need to clear the first 10 bits of the fetched UTLB data to get
     !   the "real" virtual address (eliminate ASID, Dirty and Valid bits)
-    ! - the URAM virtal address is always 0x08100000
     ! @register
     ! - r10     - current URAM virtual page address
     ! - r14     - current UTLB data bitmap
@@ -226,8 +229,8 @@ utlb_walk_loop:
     shld    r12, r11
 
     ! update the URAM physical size and also update the virtual address of
-    ! the URAM. We will restart the research from index zero to find the
-    ! potential next URAM virtual page
+    ! the URAM. Then, we will restart the search from index zero to find the
+    ! potential next URAM virtual page.
     ! @register
     ! - r6      - (out) URAM size
     ! - r10     - (out) URAM virtual page address
@@ -283,12 +286,13 @@ self_translation:
     ! ---
     ! Self-translation to URAM
     !
-    ! Now that we have the user RAM entry address (uram_phys_addr) and its
-    ! size (uram_phys_size), we can self-translate to this location using a
-    ! dummy byte-per-byte copy.
+    ! Now that we have the User RAM entry address (`uram_phys_addr`) and its
+    ! size (`uram_phys_size`), we can "self-translate" to this location by
+    ! performing a dummy byte-by-byte copy.
     !
-    ! Note that, for now, no random installation offset is performed since
-    ! predicting uncertain behavior is complex to choose for now.
+    ! Note that, for now, no randomization of the installation offset is
+    ! performed, as predicting uncertain behavior is complex to implement for
+    ! now.
     !
     ! TODO
     ! - random offset
@@ -319,7 +323,7 @@ self_translation:
     mov     image_size, r8
     mov     image_base_addr, r9
 
-    ! dump the complet image into URAM
+    ! dump the complete image into URAM
 self_dump_uram:
     mov.b   @r9, r14
     mov.b   r14, @r7
@@ -330,22 +334,21 @@ self_dump_uram:
 
 self_jump:
 
-    ! Prepare the self-translation by calculating the new PC position using
-    ! the guessed physical URAM address and P1 mask to allow caching to be
-    ! performed.
+    ! prepare the self-translation by calculating the new PC position using
+    ! the physical URAM address and P1 mask to allow caching to be performed.
     ! @note
     ! - Since we have linked our OS image using the address 0x00000000, we
-    ! don't have to calculate the gap between the start of the ROM and the
-    ! symbol. Simply add them
+    !   don't have to calculate the gap between the start of the ROM and the
+    !   symbol. Simply add them.
     mov.l   data_80000000,  r11
     or      uram_phys_addr, r11
     mov.l   real_bootloader_start, r12
     add     r12, r11
 
-    ! Now that we have uploaded all of the image in the URAM using
-    ! uncachable area (P2), we need to invalitate all Operands Cache entries
-    ! that the MPU have possibly setup to avoid inconsistant `mov.x`/`jmp`
-    ! behaviour
+    ! now that we have uploaded all of the image in the URAM using
+    ! uncacheable area (P2), we need to invalidate all Operands Cache (OC)
+    ! entries that the MPU have possibly setup to avoid inconsistent
+    ! `mov.x`/`jmp` behaviour
     ! @note
     ! - CCR.OCI = 1  -> Operand Cache Invalidation (self-cleared to 0)
     mov.l   ccr_register_addr, r12
@@ -375,7 +378,7 @@ data_f6000000:      .long 0xf6000000    ! SH7305 UTLB Address address
 data_f7000000:      .long 0xf7000000    ! SH7305 UTLB Data addresss
 data_14100c0a:      .long 0x14100c0a    ! Magic UTLB page size table
 data_1ffffc00:      .long 0x1ffffc00    ! UTLB Address PPN mask
-data_00000100:      .long 0x00000100    ! UTLB entry gap and UTLB validity bit
+data_00000100:      .long 0x00000100    ! UTLB entry gap
 data_a0000000:      .long 0xa0000000    ! P2 base address
 data_80000000:      .long 0x80000000    ! P1 base address
 ccr_register_addr:  .long 0xff00001c    ! SH7305.CACHE.CCR register address

@@ -4,7 +4,7 @@
 /* function() : define a function using special indication
  *
  * - the function's name must start with a '_'
- * - the function should start in a 4-aligned address in order to benefit from
+ * - the function should start in a 4-aligned address in order to benefit of
  *   the ILP (Instruction Level Parallelism) */
 #define function(name)  \
 .balign 4               ;\

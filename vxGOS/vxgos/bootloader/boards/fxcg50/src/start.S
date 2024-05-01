@@ -2,8 +2,6 @@
 # include "fx9860/asm_utils.h"
 #elif defined(__SUPPORT_FXCG50__)
 # include "fxcg50/asm_utils.h"
-#elif defined(__SUPPORT_FXCP400__)
-# include "fxcp400/asm_utils.h"
 #else
 # error "unsupported device"
 #endif
@@ -11,19 +9,21 @@
 .section    .bootloader.text, "ax"
 
 /* ___fxcg50_bootloader_start() : real bootstrap entry
-
-Now we are in the URAM we can performs ASLR patching, setup stack and involve
-the first high-level C code which will perform kernel setup.
-
-The primary (fake) bootloader (previous operations) have setup some arg:
-- r0  (res) image ASLR table offset
-- r1  (res) image size
-- r2  (res) kernel entry offset
-- r3  (res) kernel size
-- r4  (res) virtualised base address
-- r5  (res) URAM address
-- r6  (res) URAM size
-*/
+ *
+ * This routine is mutual between the FXC50 and FX98060, which have an exact
+ * same starting runtime environment.
+ *
+ * Now that we are in the URAM we can perform ASLR patching, setup stack and
+ * involve the first high-level C code that will perform bootloader setup.
+ *
+ * The primary (fake) bootloader (previous operations) have setup some arg:
+ * - r0  (res) image ASLR table offset
+ * - r1  (res) image size
+ * - r2  (res) kernel entry offset
+ * - r3  (res) kernel size
+ * - r4  (res) virtualised base address
+ * - r5  (res) URAM address
+ * - r6  (res) URAM size */
 
 function(__fxcg50_bootloader_start):
 
@@ -31,15 +31,11 @@ function(__fxcg50_bootloader_start):
     ! ASLR application
     !
     ! perform ASLR patch by using the symbols table information injected
-    ! during bootloader build steps at the end of the bootloader code marked
-    ! with ___bootloader_code_end.
-    !
-    ! The content of the table has been generated during post-compiling
-    ! script.
+    ! during bootloader build steps
     ! ---
 
-    ! The table symbol is not aready resolved (its our job), we must manually
-    ! calculate the real address of the symbols table
+    ! The table symbol is not already resolved (it's our job), we must
+    ! manually calculate its real address
     ! @register
     ! - r2  - (out) kernel entry address (P1)
     ! - r5  - (in) URAM address
@@ -54,11 +50,11 @@ function(__fxcg50_bootloader_start):
     add     r8, r0
     add     r7, r2
 
-    ! walk trough the symbols table and patch all location
+    ! walk through the symbols table and patch all location
     ! @note
-    ! - we MUST perform patching using P2 (uncachable) area to avoid
-    !   inconsistancy behaviour with the cache.
-    ! - symbols are relocalize through P1 (cachable) area
+    ! - we MUST perform patching using P2 (uncacheable) area to avoid
+    !   inconsistency behaviour with the cache.
+    ! - symbols are relocalize through P1 (cacheable) area
     ! @register
     ! - r0  (in) image ASLR table address (P2)
     ! - r1  (res) image size
@@ -86,9 +82,9 @@ aslr_symbol_patch_loop:
     nop
 
 aslr_commit:
-    ! Now that ASLR symbols has been updated using uncachable area (P2), we
-    ! need to invalitate all Operands Cache entry that the MPU have possibly
-    ! setup to avoid inconsistant `mov.x` behaviour
+    ! now that ASLR symbols has been updated using uncacheable area (P2), we
+    ! need to invalidate all Operands Cache (OC) entry that the MPU have
+    ! possibly setup to avoid inconsistent `mov.x` behaviour
     ! @note
     ! - CCR.OCI = 1  -> Operand Cache Invalidation (self-cleared to 0)
     mov.l   ccr_reg_addr, r10
@@ -114,11 +110,6 @@ bootloader_c_invokation:
 
     ! ---
     ! bootloader panic
-    !
-    ! As we have probably wierdly restored hadware information, if the
-    ! bootloader main routine return we simply display black screen. You can
-    ! uncomment following instruction to allows getkey() to return to the
-    ! menu
     ! ---
 
 bootloader_panic:

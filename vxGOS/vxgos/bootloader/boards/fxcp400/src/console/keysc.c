@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "bootloader/console.h"
 #include "fxcp400/keycode.h"
 
@@ -43,12 +45,12 @@ int console_key_get(void)
     static uint16_t prev_key = 0xffff;
 
     if (prev_key != 0xffff) {
-        while (1) {
+        while (true) {
             if (prev_key != keysc_fetch())
                 break;
         }
     }
-    while (1) {
+    while (true) {
         prev_key = keysc_fetch();
         if (prev_key != 0x0000)
             break;

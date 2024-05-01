@@ -7,6 +7,7 @@
 // Internals
 //---
 
+/* _command_intab() : dump interrupt handlers */
 static int _command_intab(void)
 {
     uintptr_t intevt_table;
@@ -44,6 +45,7 @@ static int _command_intab(void)
 // Public
 //---
 
+/* declare the "i" command */
 VCMD_DECLARE(
     cmd_systab,
     .name   = "i",

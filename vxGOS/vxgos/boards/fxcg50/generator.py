@@ -40,6 +40,9 @@ def _patch_uint32(image: bytearray, offset: int, data: int) -> None:
 # Public
 #---
 
+# Allow many local variables to centralize the ASLR generation in one place
+# pylint: disable=R0914
+
 def generate_aslr_blob(
     project_name:   str,
     prefix_build:   Path,
@@ -49,12 +52,12 @@ def generate_aslr_blob(
 ) -> Path:
     """ generate bootloader final blob with ASLR
 
-    The objectif of this script is to generate the final bootloader blob
-    with ASLR. To performs this, we will performs 3 steps:
+    The goal of this script is to generate the final bootloader blob
+    with ASLR. To perform this, we will performs 3 steps:
 
         * generate the raw binary file of the bootloader (objcpy)
         * generate the raw ALSR symbols table
-        * generate the complet blootloader image
+        * generate the complete blootloader image
 
     And return the final blob path
     """
@@ -98,19 +101,18 @@ def generate_aslr_blob(
             _patch_got_section(symfile, sectab)
         symfile.write(int('00000000', base=16).to_bytes(4, 'big'))
 
-
-    print('- generate the bootloader blob...')
-    bootloader_blob = bytearray(0)
+    print('- generate the final blob...')
+    img_blob = bytearray(0)
     with open(raw_file, 'rb') as rawbinfile:
-        bootloader_blob += rawbinfile.read()
-        _patch_uint32(bootloader_blob, 12, len(bootloader_blob))
-        bootloader_blob[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
-        bootloader_blob[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
+        img_blob += rawbinfile.read()
+        _patch_uint32(img_blob, 12, len(img_blob))
+        img_blob[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
+        img_blob[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
     with open(symtab_file, 'rb') as symtabfile:
-        bootloader_blob += symtabfile.read()
+        img_blob += symtabfile.read()
     bzimg_file.unlink(missing_ok=True)
     with open(bzimg_file, 'xb') as bzimgfile:
-        bzimgfile.write(bootloader_blob)
+        bzimgfile.write(img_blob)
     return bzimg_file
 
 def generate_final_image(
@@ -119,7 +121,7 @@ def generate_final_image(
     kernel_path:        Optional[Path] = None,
     os_path:            Optional[Path] = None,
 ) -> Path:
-    """ generate complet image (g3a) file
+    """ generate complete image (g3a) file
     """
     log.user('- construct the raw final image...')
     image = bytearray(0)
@@ -135,7 +137,7 @@ def generate_final_image(
         image += blob
     image_size = len(image)
 
-    log.user('- patching first two instruction of the image...')
+    log.user('- patching first instructions of the image...')
     image[2]  = 0b11010001   # (MSB) mov.l @(2, PC), r1
     image[3]  = 0b00000011   # (LSB) mov.l @(3, PC), r1
     image[4]  = 0b11010010   # (MSB) mov.l @(4, PC), r2

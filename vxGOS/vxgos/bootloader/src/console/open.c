@@ -11,7 +11,7 @@
 /* declare the console object here */
 struct console console;
 
-/* console_open(): Initialize and open the terminal */
+/* console_open(): initialize and open the terminal */
 int console_open(void)
 {
     struct font *font;

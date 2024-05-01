@@ -3,10 +3,10 @@
 .section    .bootloader.text, "ax"
 
 /* ___fxcp400_bootloader_start() : real bootstrap entry
-
-Now we are in the last 128ko of the physical RAM we can performs ASLR
-patching, setup stack and involve the first high-level C code which will
-perform kernel setup. */
+ *
+ * Now that we are in the last 128ko of the physical RAM we can performs ASLR
+ * patching, setup stack and involve the first high-level C code which will
+ * perform the bootloader setup. */
 
 function(__fxcp400_bootloader_start):
 
@@ -14,11 +14,14 @@ function(__fxcp400_bootloader_start):
     ! *CRITICAL*
     !
     ! The next few instructions will be patched *DURING COMPILE TIME* with
-    ! the complete image size (bootloader, ASLR, kernel, OS,...) as follows:
+    ! the complete image information (bootloader, ASLR, kernel, OS,...) as
+    ! follows:
+    !
     !   > mov.l os_image_aslr_offset, r0
     !   > mov.l os_image_size, r1
     !   > mov.l kernel_image_offset, r2
     !   > mov.l kernel_image_size, r3
+    !
     ! If not patched, the code will just return and indicate to the CFW to
     ! not restart the application.
     ! ---
@@ -50,8 +53,8 @@ translation_entry:
     ! ---
     ! Save critical information
     !
-    ! Calculate the runtime loaded address of the addin and save the
-    ! compile-time image size information
+    ! Calculate the runtime address of the addin and save the compile-time
+    ! information
     ! ---
 
     ! save patched information
@@ -78,14 +81,8 @@ cache_configuration:
     ! ---
     ! Configure cache
     !
-    ! This is a critical part because we will move to the URAM and perform
-    ! self-patching symbols during our execution. So, we need to have a
-    ! consistent cache behavior to help the MPU follow our instructions.
-    !
     ! The SH7305 has a special register for that called Cache Control
-    ! Register (CCR), and it seems tobe the same as SH7724 (except that no
-    ! official POC or information can invalidate the instruction Cache (IC)
-    ! without causing the machine to crash):
+    ! Register (CCR), and it seems to be the same as the SH7724:
     !
     ! - Indicate that P1 area use the "Write-back" method
     ! - Indicate that P0/P3 areas use the "Write-through" method
@@ -105,15 +102,11 @@ aslr_patching:
     ! ASLR application
     !
     ! perform ASLR patch by using the symbols table information injected
-    ! during bootloader build steps at the end of the bootloader code marked
-    ! with ___bootloader_code_end.
-    !
-    ! The content of the table has been generated during post-compiling
-    ! script.
+    ! during bootloader build steps
     ! ---
 
-    ! The table symbol is not already resolved (its our job), we must
-    ! manually calculate the real address of the symbols table
+    ! The table symbol is not already resolved (it's our job), we must
+    ! manually calculate its real address
     mov     image_aslr_table_offset, r0
     mov.l   p1_addr_base, r1
     mov.l   p2_addr_base, r2
@@ -123,11 +116,11 @@ aslr_patching:
     add     r2, r0
     add     image_reloc_base_addr, kernel_image_addr
 
-    ! walk trough the symbols table and patch all location
+    ! walk through the symbols table and patch all location
     ! @note
-    ! - we MUST perform patching using P2 (uncachable) area to avoid
-    !   inconsistancy behaviour with the physical cache.
-    ! - symbols are relocalize through P1 (cachable) area
+    ! - we MUST perform patching using P2 (uncacheable) area to avoid
+    !   inconsistency behaviour with the cache.
+    ! - symbols are relocalize through P1 (cacheable) area
 aslr_symbol_patch_loop:
     mov.l   @r0, r8
     tst     r8, r8
@@ -142,9 +135,9 @@ aslr_symbol_patch_loop:
     nop
 
 aslr_commit:
-    ! Now that ASLR symbols has been updated using uncachable area (P2), we
-    ! need to invalitate all Operands Cache entry that the MPU have possibly
-    ! setup to avoid inconsistant `mov.x` behaviour
+    ! now that ASLR symbols has been updated using uncacheable area (P2), we
+    ! need to invalidate all Operands Cache (OC) entry that the MPU have
+    ! possibly setup to avoid inconsistent `mov.x` behaviour
     ! @note
     ! - CCR.OCI = 1  -> Operand Cache Invalidation (self-cleared to 0)
     mov.l   ccr_register_addr, r1
@@ -169,21 +162,12 @@ bootloader_c_invokation:
 
     ! ---
     ! bootloader panic
-    !
-    ! As we have probably wierdly restored hadware information, if the
-    ! bootloader main routine return we simply display black screen. You can
-    ! uncomment following instruction to allows getkey() to return to the
-    ! menu (debug only)
     ! ---
 
 bootloader_panic:
     sleep
     bra     bootloader_panic
     nop
-
-! ---
-! data part
-! ---
 
 .balign 4
 

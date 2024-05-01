@@ -6,6 +6,7 @@
 // Public
 //---
 
+/* _bios_panic() : BIOS panic screen */
 _Noreturn void _bios_panic(void)
 {
     dclear(C_WHITE);

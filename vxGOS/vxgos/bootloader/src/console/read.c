@@ -24,7 +24,7 @@ int console_read(void *buffer, size_t nb)
 
     /* keyboard handling
      * @note
-     * - console_key_*() are provided externaly by boards implementation */
+     * `console_key_*()` are provided externally by boards implementation */
     while (console.input.mode.exit == 0)
     {
         key = console_key_get();

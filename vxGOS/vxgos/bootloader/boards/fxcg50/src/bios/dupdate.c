@@ -24,7 +24,7 @@ enum {
 };
 
 
-/* r61524_select() : selecte screen mode */
+/* r61524_select() : select screen mode */
 static inline void r61524_select(uint16_t reg)
 {
     /* Clear RS and write the register number */
@@ -33,18 +33,12 @@ static inline void r61524_select(uint16_t reg)
     *(volatile uint16_t *)0xb4000000 = reg;
     __asm__ volatile ("synco"::);
 
-    /* Set RS back. We don't do this in read()/write() because the display
-       driver is optimized for consecutive GRAM access. LCD-transfers will
-       be faster when executing select() followed by several calls to
-       write(). (Although most applications should use the DMA instead.) */
+    /* Set RS back. We don't do this in write() because the display
+     * driver is optimized for consecutive GRAM access. LCD-transfers will
+     * be faster when executing select() followed by several calls to
+     * write() */
     *(volatile uint8_t *)0xa405013c |= 0x10;
     __asm__ volatile ("synco"::);
-}
-
-/* r61524_read() : read information from screen */
-static inline uint16_t r61524_read(void)
-{
-    return *(volatile uint16_t *)0xb4000000;
 }
 
 /* r61524_write() : write information */

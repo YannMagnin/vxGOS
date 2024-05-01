@@ -4,7 +4,7 @@
 /* function() : define a function using special indication
  *
  * - the function's name must start with a '_'
- * - the function should start in a 4-aligned address in order to benefit from
+ * - the function should start in a 4-aligned address in order to benefit of
  *   the ILP (Instruction Level Parallelism) */
 #define function(name)  \
 .balign 4               ;\
@@ -14,7 +14,7 @@ _ ## name
 /* FXCG50_SYSCALL_TRAMPOLINE - Casio's syscall trampoline address */
 #define FXCG50_SYSCALL_TRAMPOLINE   0x80020070
 
-/* syscall() : helper used to quickly define Casio syscall invokation
+/* syscall() : helper used to quickly define Casio syscall invocation
  *
  * - the syscall trampoline code is common for all syscall
  * - r0 contain the syscall ID */

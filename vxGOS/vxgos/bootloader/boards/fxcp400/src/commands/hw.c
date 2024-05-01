@@ -7,6 +7,7 @@
 // Internals
 //---
 
+/* _command_hw() : display register information */
 static int _command_hw(void)
 {
     uintptr_t sr;
@@ -54,6 +55,7 @@ static int _command_hw(void)
 // Public
 //---
 
+/* register the "h" command */
 VCMD_DECLARE(
     cmd_hw,
     .name   = "h",

@@ -7,6 +7,7 @@
 // Internals
 //---
 
+/* __snprintf_core : internal structure */
 struct __snprintf_core
 {
     uintptr_t buffer;

@@ -2,8 +2,6 @@
 # include "fx9860/keycode.h"
 #elif defined(__SUPPORT_FXCG50__)
 # include "fxcg50/keycode.h"
-#elif defined(__SUPPORT_FXCP400__)
-# include "fxcp400/keycode.h"
 #else
 # error "unsupported device"
 #endif
@@ -14,10 +12,12 @@
 // Public
 //---
 
-/* console_key_handle_special() : handle special key handling */
-// TODO
-// - F_UP   -> history
-// - F_DOWN -> history
+/* console_key_handle_special() : handle special key handling
+ *
+ * @todo
+ * - F_UP   -> history
+ * - F_DOWN -> history
+ * */
 int console_key_handle_special(struct console *console, int key)
 {
     switch (key)
@@ -51,7 +51,7 @@ int console_key_handle_special(struct console *console, int key)
     }
 }
 
-/* console_key_handle(): Update the internal buffer with the given key code */
+/* console_key_handle(): update the internal buffer */
 int console_key_handle(struct console *console, int key)
 {
     static const uint8_t keylist_alpha[] = {

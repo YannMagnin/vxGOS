@@ -10,7 +10,7 @@
 
 /* _command_next() : internal command iterator
  * @note
- * __bootloader_cmd_array_* are provided by the generic linker script */
+ * `__bootloader_cmd_array_*` are provided by the linker script */
 static int _command_next(struct bootloader_cmd **cmd)
 {
     extern uintptr_t __bootloader_cmd_array_start;
@@ -43,7 +43,6 @@ static int _command_help(void)
     }
     return 0;
 }
-
 
 //---
 // Public

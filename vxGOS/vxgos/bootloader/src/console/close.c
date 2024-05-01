@@ -10,7 +10,7 @@
 /* console object */
 extern struct console console;
 
-/* console_close(): Uninitialize the terminal */
+/* console_close(): uninitialize the terminal */
 int console_close(void)
 {
     if (console.output.buffer.data != NULL)

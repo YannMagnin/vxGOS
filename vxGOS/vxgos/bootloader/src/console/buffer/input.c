@@ -146,7 +146,8 @@ void console_buffer_in_remove(struct console *console)
             i < console->input.buffer.size - 1;
             i++
         ) {
-            console->input.buffer.data[i] = console->input.buffer.data[i + 1];
+            console->input.buffer.data[i] = \
+                console->input.buffer.data[i + 1];
         }
     }
 
@@ -169,7 +170,8 @@ int console_buffer_in_insert(struct console *console, char n)
     if (console->input.buffer.cursor < console->input.buffer.size) {
         i = console->input.buffer.size + 1;
         while (--i > console->input.buffer.cursor) {
-            console->input.buffer.data[i] = console->input.buffer.data[i - 1];
+            console->input.buffer.data[i] = \
+                console->input.buffer.data[i - 1];
         }
     }
 

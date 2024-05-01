@@ -18,9 +18,12 @@ int console_buffer_out_reset(struct console *console)
     return 0;
 }
 
-/* console_buffer_out_insert() : insert string anywhere in the output buffer */
-int console_buffer_out_insert(struct console *console, char *buffer, size_t nb)
-{
+/* console_buffer_out_insert() : insert string anywhere in the out buffer */
+int console_buffer_out_insert(
+    struct console *console,
+    char *buffer,
+    size_t nb
+) {
     size_t dump;
     void *start;
 
@@ -105,7 +108,7 @@ int console_buffer_out_display(struct console *console)
     }
 
     /* Display character per character because we need to check special
-       behaviour (like cariege return, line feed, ...) */
+       behaviour (like carriage return, line feed, ...) */
     console->output.cursor.x = 0;
     console->output.cursor.y = 0;
     while (1)

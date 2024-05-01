@@ -1,5 +1,5 @@
-#ifndef FXCG50_KEYCODE_H
-#define FXCG50_KEYCODE_H
+#ifndef FX9860_KEYCODE_H
+#define FX9860_KEYCODE_H
 
 /* KEYSCODE_GEN() : generate keycode */
 #define KEYCODE_GEN(row, column) \
@@ -70,4 +70,4 @@ typedef enum
     KEY_NONE   = 0xfe,
 } KEY_t;
 
-#endif /* FXCG50_KEYCODE_H */
+#endif /* FX9860_KEYCODE_H */

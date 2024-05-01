@@ -5,14 +5,16 @@
 //---
 
 /* console_vertical_update() - Update vertical cursor */
-static void console_vertical_update(struct console *console, unsigned int *y)
-{
+static void console_vertical_update(
+    struct console *console,
+    unsigned int *y
+) {
     if (*y + 1 < console->winsize.ws_col) {
         *y += 1;
     }
 }
 
-/* console_horizontal_update() - Update horizotal cursor */
+/* console_horizontal_update() - Update horizontal cursor */
 static int console_horizontal_update(
     struct console *console,
     unsigned int *x,

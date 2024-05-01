@@ -149,15 +149,15 @@ extern void console_buffer_in_cursor_move(
 /* console_buffer_in_display() : display input buffer */
 extern void console_buffer_in_display(struct console *console);
 
-/* console_buffer_in_remove(): Remove character based on cursor position */
+/* console_buffer_in_remove(): remove character based on cursor position */
 extern void console_buffer_in_remove(struct console *console);
 
-/* console_buffer_in_insert() - Insert character at cursor position */
+/* console_buffer_in_insert() - insert character at cursor position */
 extern int console_buffer_in_insert(struct console *console, char n);
 
 // line discipline
 
-/* console_line_discipline() - Check "special" char */
+/* console_line_discipline() - check "special" char */
 extern int console_line_discipline(
     struct console *console,
     char n,
@@ -170,7 +170,7 @@ extern int console_line_discipline(
 /* console_key_get() : get current pressed key */
 extern int console_key_get(void);
 
-/* console_key_handle_special() : check if the key is the a special one */
+/* console_key_handle_special() : check if the key is a special one */
 extern int console_key_handle_special(struct console *console, int key);
 
 /* console_key_handle() : handle current key */

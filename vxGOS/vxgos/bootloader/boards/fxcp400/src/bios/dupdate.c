@@ -18,7 +18,7 @@ enum {
 };
 
 
-/* r61523_select() : selecte screen mode */
+/* r61523_select() : select screen mode */
 static inline void r61523_select(uint16_t reg)
 {
     /* Clear RS and write the register number */
@@ -30,19 +30,13 @@ static inline void r61523_select(uint16_t reg)
     /* Set RS back. We don't do this in read()/write() because the display
        driver is optimized for consecutive GRAM access. LCD-transfers will
        be faster when executing select() followed by several calls to
-       write(). (Although most applications should use the DMA instead.) */
+       write() */
     *(volatile uint8_t *)0xa405013c |= 0x10;
     __asm__ volatile ("synco"::);
 }
 
-/* r61523_read() : read information from screen */
-static inline uint16_t r61523_read(void)
-{
-    return *(volatile uint16_t *)0xb4000000;
-}
-
 /* r61523_write() : write information */
-static void r61523_write(uint16_t data)
+static inline void r61523_write(uint16_t data)
 {
     *(volatile uint16_t *)0xb4000000 = data;
 }
@@ -58,11 +52,14 @@ uint16_t volatile *casio_vram = (void*)0x8c000000;
 /* _bios_dupdate() : small R61523 driver
  *
  * @note
- * Casio use an undocumented register at 0xda which seems return either the
- * screen variant that is currently used (which is our case here, this is
- * clearly not a `r61523` device). In the case that this is our screen that
- * is detected, an extra 40 pixels should be added to the starting width and
- * ending width.
+ * Casio uses an undocumented register at 0xDA, which seems to return
+ * the screen variant currently used (which does not concern us here). In
+ * the case that this is our screen which is detected, Casio add an extra 40
+ * pixels to the starting width and ending width.
+ *
+ * This arbitrary padding appears to match the R61523 datasheet, which
+ * explains that the original screen has a size of 360x640 pixels, and
+ * adding 40 pixels to our original starting area yields 360 pixels.
  *
  * (todo) : better understanding of the special 0xda register
  * */
