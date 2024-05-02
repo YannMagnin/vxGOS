@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = 'vxGOS'
-version     = '0.0.10'
+version     = '0.0.11'
 description = 'Vhex operating system oriented game creation'
 repository  = 'https://github.com/YannMagnin/vxGOS.git'
 readme      = 'README.md'
