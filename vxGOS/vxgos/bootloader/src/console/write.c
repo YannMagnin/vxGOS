@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <alloca.h>
 #include <stdio.h>
 
 #include "bootloader/console.h"
@@ -14,8 +15,13 @@ extern struct console console;
 /* console_vwrite() : printf wrapper for the terminal device with va_list */
 int console_vwrite(const char *format, va_list ap)
 {
-    char buffer[1024];
+    char *buffer;
     int nb;
+
+    /* allocate local space */
+    buffer = alloca(1024);
+    if (buffer == NULL)
+        return -1;
 
     /* process the format */
     nb = vsnprintf(buffer, 1024, format, ap);

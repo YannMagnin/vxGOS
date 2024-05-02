@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "bootloader/command.h"
 #include "bootloader/console.h"
 #include "bootloader/display.h"
 #include "bootloader/bios.h"
@@ -46,7 +47,10 @@ int bootloader_main(
         } else {
             console_write("[%d]>", ret);
         }
-        console_read(buffer, 128);
+        if (console_read(buffer, 128) == 0) {
+            ret = 0;
+            continue;
+        }
         if (buffer[0] == 'b' && buffer[1] == '\0')
             break;
         if (strcmp("boot", buffer) == 0)

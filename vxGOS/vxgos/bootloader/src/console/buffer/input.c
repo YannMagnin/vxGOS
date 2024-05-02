@@ -35,23 +35,19 @@ int console_buffer_in_uninit(struct console *console)
     /* check error */
     if (console == NULL)
         return -1;
+    if (console->input.buffer.data == NULL)
+        return -2;
 
-    /* inject the new-line and the EOL */
-    console->input.buffer.data[console->input.buffer.size] = '\n';
-    console->input.buffer.size += 1;
+    /* ensure that the EOL is registered */
     console->input.buffer.data[console->input.buffer.size] = '\0';
 
-    /* insert the input buffer */
+    /* insert the input buffer and force new line */
     console_buffer_out_insert(
         console,
         console->input.buffer.data,
         console->input.buffer.size
     );
-
-    /* remove the new-line before the EOL to have the same behaviour than
-     * readline() */
-    console->input.buffer.size -= 1;
-    console->input.buffer.data[console->input.buffer.size] = '\0';
+    console_buffer_out_insert(console, "\n", 1);
 
     /* reset buffer information and quit */
     readed = console->input.buffer.size;

@@ -8,9 +8,13 @@
 // Internals
 //---
 
+/* disable out-of-bounds analysing since we use linker-script magic */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-out-of-bounds"
+
 /* _command_next() : internal command iterator
  * @note
- * `__bootloader_cmd_array_*` are provided by the linker script */
+ * - `__bootloader_cmd_array_*` are provided by the linker script */
 static int _command_next(struct bootloader_cmd **cmd)
 {
     extern uintptr_t __bootloader_cmd_array_start;
@@ -63,10 +67,14 @@ int command_exec(char const * const command)
     return 127;
 }
 
+
 /* declare generic "?" command */
 VCMD_DECLARE(
     help_cmd,
     .name   = "?",
     .desc   = "list all commands",
-    .func   = &_command_help,
+    .func   = (void *)&_command_help,
 );
+
+/* restore GCC context (re-enable out-of-bounds checks */
+#pragma GCC diagnostic pop

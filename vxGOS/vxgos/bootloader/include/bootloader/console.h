@@ -30,7 +30,6 @@ struct console
         size_t ws_ypixel;
         size_t ft_xpixel;
         size_t ft_ypixel;
-        size_t ft_csize;
     } winsize;
 
     /* output buffer information*/

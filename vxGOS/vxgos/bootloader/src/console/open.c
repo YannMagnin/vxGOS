@@ -35,14 +35,15 @@ int console_open(void)
 
     console.output.buffer.size_frame  = console.winsize.ws_row;
     console.output.buffer.size_frame *= console.winsize.ws_col;
+    console.output.buffer.size_frame *= sizeof(uint8_t);
 
     console.output.buffer.size  = console.output.buffer.size_frame;
     console.output.buffer.size *= TERM_BUFFER_NB_FRAME;
     console.output.buffer.size *= sizeof(uint8_t);
 
     console.output.buffer.data = calloc(
-        sizeof(char),
-        console.output.buffer.size
+        console.output.buffer.size,
+        sizeof(uint8_t)
     );
     if (console.output.buffer.data == NULL) {
         console_close();

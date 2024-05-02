@@ -13,6 +13,8 @@ int console_buffer_out_reset(struct console *console)
 {
     if (console == NULL)
         return -1;
+    if (console->output.buffer.data == NULL)
+        return -2;
     memset(console->output.buffer.data, 0x00, console->output.buffer.size);
     console->output.buffer.cursor = 0;
     return 0;
@@ -24,8 +26,9 @@ int console_buffer_out_insert(
     char *buffer,
     size_t nb
 ) {
+    size_t frag_dump;
     size_t dump;
-    void *start;
+    char *start;
 
     /* check error */
     if (console == NULL)
@@ -35,28 +38,34 @@ int console_buffer_out_insert(
     if (nb == 0)
         return 0;
 
-    /* calculate the "real" number of byte to dump into the buffer */
+    /* calculate the "real" number of byte to dump into the buffer
+     * @note
+     * - reset the buffer cursor to avoid circular handling (speed) */
     dump = nb;
     start = &buffer[0];
     if (dump > console->output.buffer.size) {
         start = &buffer[dump - console->output.buffer.size];
         dump  = console->output.buffer.size;
+        console->output.buffer.cursor = 0;
     }
 
     /* dump the buffer (be careful with the circular effect) */
-    if (console->output.buffer.cursor + dump >= console->output.buffer.size)
+    if (console->output.buffer.cursor + dump > console->output.buffer.size)
     {
+        frag_dump  = console->output.buffer.size;
+        frag_dump -= console->output.buffer.cursor;
         memcpy(
             &console->output.buffer.data[console->output.buffer.cursor],
-            start,
-            console->output.buffer.size - console->output.buffer.cursor
+            &start[0],
+            frag_dump
         );
-        dump -= console->output.buffer.size - console->output.buffer.cursor;
+        dump -= frag_dump;
         console->output.buffer.cursor = 0;
+        start = &start[frag_dump];
     }
     memcpy(
         &console->output.buffer.data[console->output.buffer.cursor],
-        start,
+        &start[0],
         dump
     );
     console->output.buffer.cursor += dump;
@@ -73,9 +82,14 @@ int console_buffer_out_display(struct console *console)
     /* check obvious error */
     if (console == NULL)
         return -1;
+    if (console->output.buffer.data == NULL)
+        return -2;
 
     /* Due to potential special char, we should find the "real" starting
-       index for the internal buffer */
+     * index for the internal buffer by simulating, in backward, each char
+     * @note
+     * - the buffer cursor point-out the next insertion
+     * - this will simulate printing the output buffer backward */
     console->output.cursor.x = 0;
     console->output.cursor.y = 0;
     i = console->output.buffer.cursor;
@@ -97,18 +111,24 @@ int console_buffer_out_display(struct console *console)
             break;
 
         /* handle the character (only to force update cursors) */
-        console_line_discipline(
-            console,
-            buffer[i],
-            &console->output.cursor.x,
-            &console->output.cursor.y
-        );
-        if (console->output.cursor.y >= console->winsize.ws_row)
+        if (
+            console_line_discipline(
+                console,
+                buffer[i],
+                &console->output.cursor.x,
+                &console->output.cursor.y
+            ) < 0
+        ) {
             break;
+        }
     }
 
-    /* Display character per character because we need to check special
-       behaviour (like carriage return, line feed, ...) */
+    /* Now that we have the buffer starting index, display (really this time)
+     * forward
+     * @note
+     * - "i" have the index just before the first one to display
+     * - theoretically the index will never cross the final cursor in the
+     *   first loop */
     console->output.cursor.x = 0;
     console->output.cursor.y = 0;
     while (1)

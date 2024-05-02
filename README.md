@@ -33,6 +33,13 @@ simple, as we don't care about security. The kernel only provides drivers,
 the hypervisor, and game primitives (including drawing, input handling,
 etc.) do whatever you want with it!
 
+<div align="center">
+
+[roadmap](https://github.com/YannMagnin/vxGOS/issues/30)
+| [releases](https://github.com/YannMagnin/vxGOS/releases)
+
+</div>
+
 ## Supported devices
 
 For now, mainly Casio calculators are supported. Mainly because I have some
