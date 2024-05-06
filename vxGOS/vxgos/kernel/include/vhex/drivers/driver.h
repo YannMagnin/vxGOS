@@ -1,11 +1,15 @@
-#ifndef __VHEX_DRIVER__
-# define __VHEX_DRIVER__
+#ifndef VHEX_DRIVERS_DRIVER_H
+#define VHEX_DRIVERS_DRIVER_H 1
 
-#include <vhex/defs/attributes.h>
-#include <vhex/defs/types.h>
+#include "vhex/defs/attributes.h"
+#include "vhex/defs/types.h"
+
+//---
+// Public
+//---
 
 /* Device drivers */
-struct vhex_driver
+struct vxdriver
 {
     /* Driver name */
     char const *name;
@@ -60,45 +64,28 @@ struct vhex_driver
 
 
 /* VHEX_DECLARE_DRIVER(): Declare a driver to the kernel
-
-   Use this macro to declare a driver by passing it the name of a
-   vhex_world_core structure. This macro moves the structure to the
-   .vhex.drivers.* sections, which are automatically traversed at startup.
-
-   The level argument represents the priority level: lower numbers mean that
-   drivers will be loaded sooner. This numbering allows a primitive form of
-   dependency for drivers. You need to specify a level which is strictly
-   higher than the level of all the drivers you depend on.
-
-   The level number *MUST HAVE EXACTLY 2 DIGITS*, as it is used as a string in
-   the section name and the linker then sorts by name. If your driver has a
-   level lower than 10, you must add a leading 0. */
+ *
+ * Use this macro to declare a driver by passing it the name of a
+ * `vxdriver` structure. This macro moves the structure to the
+ * `.vhex.drivers.*` sections, which are automatically traversed at startup.
+ *
+ * The level argument represents the priority level: lower numbers mean that
+ * drivers will be loaded sooner. This numbering allows a primitive form of
+ * dependency for drivers. You need to specify a level which is strictly
+ * higher than the level of all the drivers you depend on.
+ *
+ * The level number *MUST HAVE EXACTLY 2 DIGITS*, as it is used as a string
+ * in the section name and the linker then sorts by name. If your driver has
+ * a level lower than 10, you must add a leading 0 (e.g "09" or "02"). */
 #define VHEX_DECLARE_DRIVER(level, name) \
-    VSECTION(".vhex.drivers." #level) extern struct vhex_driver name;
+    VSECTION(".vhex.drivers." #level) extern struct vxdriver name;
 
+// driver abstraction
 
+/* kernel_driver_next() : feth the next driver */
+extern int kernel_driver_next(struct vxdriver **driver);
 
-
-//---
-// Internal driver control
-//
-// The following data is exposed for introspection and debugging purposes; it
-// is not part of the vhex API. There is *no stability guarantee* that the
-// following types and functions will remain unchanged in future minor and
-// patch versions.
-//---
-
-/* Number of drivers in the (vhex_drivers) array */
-#define vhex_driver_count() \
-    ((struct vhex_driver *)&vhex_drivers_end - \
-     (struct vhex_driver *)&vhex_drivers_start)
-
-/* driver table */
-#define vhex_driver_table() \
-    ((struct vhex_driver *)&vhex_drivers_start)
-
-/* provided by the linker script */
-extern uintptr_t vhex_drivers_start;
-extern uintptr_t vhex_drivers_end;
+/* kernel_driver_init() : find a particular driver */
+extern int kernel_driver_find(struct vxdriver **driver, char *name);
 
 #endif /* __VHEX_DRIVER__ */

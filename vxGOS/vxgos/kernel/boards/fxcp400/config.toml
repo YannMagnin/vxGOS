@@ -3,7 +3,7 @@ modules = [
 
 ]
 drivers = [
-
+    'screen/r61523',
 ]
 libraries = [
     '-lc',

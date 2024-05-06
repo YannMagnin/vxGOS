@@ -15,7 +15,7 @@ struct dsurface {
     int y1;
     int x2;
     int y2;
+    int number;
 };
-typedef struct dsurface dsurface_t;
 
 #endif /* __VHEX_DISPLAY_TYPES__ */

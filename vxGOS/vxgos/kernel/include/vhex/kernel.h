@@ -1,10 +1,16 @@
-#ifndef __VHEX_KERNEL_H__
-# define __VHEX_KERNEL_H__
+#ifndef VHEX_KERNEL_H
+#define VHEX_KERNEL_H 1
 
-/* kinit(): Install and start vhex */
-extern void kinit(void);
+//---
+// Public
+//---
 
-/* kquit(): Quit vhex and give back control to the system */
-extern void kquit(void);
+/* kernel_initialise() : generic kernel initialisation
+ * (theorically, should never be called) */
+extern void kernel_initialise(void);
 
-#endif /*__VHEX_KERNEL_H__*/
+/* kernel_panic() : kernel panic
+ * (provided by the selected board) */
+extern _Noreturn void kernel_panic(char const * const text);
+
+#endif /* VHEX_KERNEL_H */

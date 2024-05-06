@@ -10,7 +10,9 @@ high-level projects like games or extremely low-level projects like drivers
 and kernels. This can be achieved by the fact that the operating system
 provides an exotic hypervisor and interfaces that allow you to execute
 privileged instructions, perform "hypercalls" (requests to the kernel to
-perform temporary jobs), draw sprites, handle inputs, ... and more.
+perform temporary jobs), draw sprites, handle inputs, ... and more. Also note
+that this particular kernel is "mono-process" which means that we really are
+alone with the hardware during the execution of your homebrew !
 
 ```mermaid
 block-beta
@@ -101,7 +103,7 @@ vxsdk board list
 # @note
 # > If you perform the previous step, you will notify that the "S" has been
 #   added to the board line
-vxsdk board select --target fxcg50
+vxsdk board select fxcg50
 
 # build the kernel (it will build the current selected board)
 # @note

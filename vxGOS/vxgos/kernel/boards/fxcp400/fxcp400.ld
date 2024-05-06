@@ -45,24 +45,17 @@ SECTIONS
     /* Exposed driver interfaces (.vhex.drivers)
        The driver information is required to start and configure the
        driver, even if the symbols are not referenced */
-    .vhex.drivers : {
-        _vhex_drivers_start = . ;
+    .vhex.drivers ALIGN(16) : {
+        ___vhex_drivers_array_start = . ;
         KEEP(*(SORT_BY_NAME(.vhex.drivers.*)));
-        _vhex_drivers_end = . ;
+        ___vhex_drivers_array_end = . ;
     }
 
     /* Exposed module interfaces (.vhex.modules) */
     .vhex.modules : {
-        _vhex_modules_start = . ;
+        ___vhex_modules_start = . ;
         KEEP(*(SORT_BY_NAME(.vhex.modules.*)));
-        _vhex_modules_end = . ;
-    }
-
-    /* Exposed device interfaces (.vhex.devices) */
-    .vhex.devices : {
-        _vhex_devices_start = . ;
-        KEEP(*(SORT_BY_NAME(.vhex.devices.*)));
-        _vhex_devices_end = . ;
+        ___vhex_modules_end = . ;
     }
 
     /* read-only sections */

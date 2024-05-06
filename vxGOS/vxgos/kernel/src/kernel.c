@@ -1,30 +1,36 @@
-#include <vhex/kernel.h>
-#include <vhex/module.h>
-
 //---
-//  Initialization and unloading
+// kernel - Kernel initialization and C runtime
 //---
 
-/* kinit(): Install and start vhex */
-void kinit(void)
+#include <stdbool.h>
+
+#include "vhex/devices/kterm.h"
+#include "vhex/kernel.h"
+
+//---
+// Public
+//---
+
+/* kernel_initialize() : Where it all starts
+ *
+ * We are currently in a RAM location at a non-constant address due to the
+ * relocalization performed by the bootloader. Moreover, we are in privileged
+ * mode and all drivers are in instable-state (not configured or partialy
+ * configured on Casio's device).
+ *
+ * This routine will initialise an "early terminal" (kterm) which will allow
+ * us to graphicaly display information before (in quind of sort) any kernel
+ * initialisation (no buffer, no read support, ...)
+ *
+ * (todo) : after kterm */
+void kernel_initialize(void)
 {
-    struct vhex_module *mtable;
+    if (kterm_init() != 0)
+        kernel_panic(NULL);
+    //kterm_write("kterm initialised...\n");
 
-    mtable = vhex_module_table();
-    for (int i = 0; i < vhex_module_count(); ++i) {
-        if (mtable[i].init != NULL)
-            mtable[i].init();
-    }
-}
-
-/* kquit(): Quit vhex and give back control to the system */
-void kquit(void)
-{
-    struct vhex_module *mtable;
-
-    mtable = vhex_module_table();
-    for (int i = 0; i < vhex_module_count(); ++i) {
-        if (mtable[i].quit != NULL)
-            mtable[i].quit();
+    while (true) {
+        __asm__ volatile ("sleep");
+        //kernel_panic("kernel want to return o(x_x)o\n");
     }
 }
