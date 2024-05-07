@@ -1,43 +1,47 @@
-#include <vhex/defs/types.h>
-#include <vhex/display.h>
-#include <vhex/display/stack.h>
-
 //---
-// kernel-level API
+// modules:display:dclear   - display clear render operation
 //---
 
-/* dclear_draw() : real drawing algorithm */
-void dclear_render(dsurface_t *surface, uint32_t color)
+#include <stdint.h>
+
+#include "vhex/modules/display.h"
+#include "vhex/modules/display/stack.h"
+#include "vhex/modules/display/surface.h"
+
+//---
+// Internals
+//---
+
+/* dclear_render() : real drawing algorithm
+ *
+ * @note
+ * - low-level drawing invoked by dstack_render()
+ * - should never be called manually */
+static void dclear_render(struct dsurface *surface, uint32_t color)
 {
     uint32_t *vram = surface->vram;
     for (size_t i = 0; i < surface->width * (surface->height/2); ++i)
         vram[i] = color;
-#if 0
-    uint32_t *vram;
-    int size = (surface->y1 == 220) ? 792 : 1980;
-
-    vram = surface->vram;
-    for (int i = 0; i < size; ++i)
-        vram[i] = color;
-#endif
 }
 
-//---
-// Dstack-level API
-//---
-
-/* dclear_dstack() : dstack rwrapper primitive */
-void dclear_dstack(dsurface_t *surface, uintptr_t *arg)
+/* dclear_dstack() : dstack wrapper primitive
+ *
+ * @note
+ * - deserialise dstack invokation */
+static void dclear_dstack(struct dsurface *surface, uintptr_t *arg)
 {
     dclear_render(surface, (uint32_t)arg[0]);
 }
 
 //---
-// User-level API
+// Public
 //---
 
-/* dclear(): Fill the screen with a single color */
-did_t dclear(int color)
+/* dclear(): Fill the screen with a single color
+ *
+ * @note
+ * - currently hardcoded for 16-bits color */
+int dclear(int color)
 {
     uint32_t copti;
 

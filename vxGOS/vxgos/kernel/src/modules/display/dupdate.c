@@ -1,7 +1,14 @@
-#include "vhex/display.h"
-#include "vhex/display/stack.h"
+//---
+// modules:display:dupdate  - display update
+//---
 
-/* dupdate(): Push the video RAM to the display driver */
+#include "vhex/modules/display/stack.h"
+
+//---
+// Public
+//---
+
+/* dupdate(): render the display stack */
 void dupdate(void)
 {
     dstack_render();

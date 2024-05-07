@@ -1,29 +1,43 @@
-#include <vhex/display.h>
-#include <vhex/defs/utils.h>
-
 //---
-// Kernel-level API
+// modules:display:draw:drect   - display rectangle render
 //---
 
-/* drect_filled() : draw filled rectangle */
-void drect_filled_render(
-    dsurface_t *surface,
+#include "vhex/modules/display/draw/rect.h"
+#include "vhex/modules/display/surface.h"
+#include "vhex/modules/display/stack.h"
+#include "vhex/defs/utils.h"
+
+//---
+// Internals
+//---
+
+/*external symbols */
+extern void dhline_render(
+    struct dsurface *surface,
     int color,
-    int x1, int y1, int x2, int y2
-) {
-    if (y1 > y2) swap(y1, y2);
+    int y,
+    int x1,
+    int x2
+);
 
+/* drect_filled_render() : draw filled rectangle */
+void drect_filled_render(
+    struct dsurface *surface,
+    int color,
+    int x1,
+    int y1,
+    int x2,
+    int y2
+) {
+    if (y1 > y2)
+        swap(y1, y2);
     for (int y = y1 ; y <= y2 ; ++y) {
         dhline_render(surface, color, y, x1, x2);
     }
 }
 
-//---
-// Dstack-level API
-//---
-
 /* drect_filled_dstack() : dstack API wrapper */
-static void drect_filled_dstack(dsurface_t *surface, uintptr_t *args)
+static void drect_filled_dstack(struct dsurface *surface, uintptr_t *args)
 {
     drect_filled_render(
         surface,
@@ -36,10 +50,10 @@ static void drect_filled_dstack(dsurface_t *surface, uintptr_t *args)
 }
 
 //---
-// User-level API
+// Public
 //---
 
-/* plasma() : draw plasma effect */
+/* drect() : draw a rectangle */
 void drect(int color, int x1, int y1, int x2, int y2)
 {
     dstack_add_action(

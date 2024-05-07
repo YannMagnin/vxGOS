@@ -22,7 +22,7 @@ struct vxdriver drv_r61523 = {
         .SHARED  = 0,
         .UNUSED  = 0,
     },
-    .module_data = &(struct dstack_drv_interface){
+    .internal_data = &(struct dstack_drv_interface){
         .display = {
             .frame_start        = &r61523_frame_start,
             .frame_frag_next    = &r61523_frame_next,

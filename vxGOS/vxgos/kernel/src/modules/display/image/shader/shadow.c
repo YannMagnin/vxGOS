@@ -1,3 +1,4 @@
+#if 0
 #include <vhex/display/image.h>
 #include <vhex/display/types.h>
 #include <vhex/display/stack.h>
@@ -252,3 +253,4 @@ int dimage_shader_shadow(did_t did, int xoff, int yoff)
         DSHADER(&dimage_shader_shadow_dstack, xoff, yoff)
     );
 }
+#endif

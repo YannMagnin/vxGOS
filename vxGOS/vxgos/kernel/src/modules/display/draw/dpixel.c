@@ -1,13 +1,18 @@
-#include <vhex/display.h>
-#include <vhex/defs/attributes.h>
-#include <vhex/defs/types.h>
+//---
+// modules:display:draw:pixel   - display pixel
+//---
+
+#include "vhex/modules/display/surface.h"
+#include "vhex/modules/display/surface.h"
+#include "vhex/modules/display/stack.h"
+#include "vhex/modules/display/color.h"
 
 //---
-// Kernel-level API
+// Internal
 //---
 
 /* dpixel_render() : drawing algorithm */
-void dpixel_render(dsurface_t *surface, int x, int y, int color)
+void dpixel_render(struct dsurface *surface, int x, int y, int color)
 {
     if (color == C_NONE)
         return;
@@ -34,18 +39,14 @@ void dpixel_render(dsurface_t *surface, int x, int y, int color)
     vram[draw_idx] = color;
 }
 
-//---
-// Dstack-level API
-//---
-
 /* dpixel_render_dstack() : dstack-API compatible render */
-void dpixel_dstack(dsurface_t *surface, uintptr_t *arg)
+static void dpixel_dstack(struct dsurface *surface, uintptr_t *arg)
 {
     dpixel_render(surface, arg[0], arg[1], arg[2]);
 }
 
 //---
-// User-level API
+// Public
 //---
 
 /* dpixel() : draw a pixel in screen */
@@ -57,4 +58,3 @@ void dpixel(int x, int y, int color)
         NULL
     );
 }
-

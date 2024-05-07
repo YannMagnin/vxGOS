@@ -1,23 +1,31 @@
-#include <vhex/display/font.h>
-#include <vhex/display/draw/pixel.h>
-#include <vhex/display/color.h>
-#include <vhex/display/stack.h>
-
 //---
-// Kernel-level render API
+// modules:display:font:render:dchar    - display char
 //---
 
-/* dfont_char_render() : */
+#include "vhex/modules/display/font.h"
+#include "vhex/modules/display/color.h"
+#include "vhex/modules/display/stack.h"
+#include "vhex/modules/display/surface.h"
+
+//---
+// Internals
+//---
+
+/*external symbols */
+extern void dpixel_render(struct dsurface *surface, int x, int y, int color);
+
+/* dfont_char_render() : render a character */
 void dfont_char_render(
-    dsurface_t *surface,
-    int glyph_idx,
+    struct dsurface *surface,
+    uint32_t code_point,
     uintptr_t *arg
 ) {
     uint32_t glyph_bitmap;
     uint32_t glyph_shift;
+    int glyph_idx;
     int glyph_width;
     int glyph_size;
-    font_t *font;
+    struct vxfont *font;
     int counter;
     int sx;
     int x;
@@ -26,10 +34,13 @@ void dfont_char_render(
     x = arg[0];
     y = arg[1];
 
-
     /* generate font index / shift information */
-    font = dfont_get();
-    if (font->shape.prop == 1) {
+    if (dfont_get(&font) != 0)
+        return;
+    glyph_idx = dfont_glyph_index(font, code_point);
+    if (glyph_idx <= 0)
+        return;
+    if (font->shape.proportional == 1) {
         glyph_width = font->glyph.prop[glyph_idx].width;
         glyph_shift = font->glyph.prop[glyph_idx].shift;
         glyph_idx   = font->glyph.prop[glyph_idx].index;
@@ -74,34 +85,30 @@ void dfont_char_render(
     }
 }
 
-//---
-// Dstack API
-//---
-
 /* dfont_char_dstack() : dstack wrapper */
-void dfont_char_dstack(dsurface_t *surface, uintptr_t *arg)
+static void dfont_char_dstack(struct dsurface *surface, uintptr_t *arg)
 {
-    font_t *font = dfont_get();
     uintptr_t buff[6] = {
         arg[1], arg[2], 0, 0, arg[3], arg[4]
     };
-
-    dfont_char_render(surface, dfont_glyph_index(font, arg[0]), buff);
+    dfont_char_render(surface, arg[0], buff);
 }
 
 //---
-// User-level API
+// Public
 //---
 
-/* dfont_char() : display one char */
-void dfont_char(uint32_t n, int x, int y, int fg, int bg)
+/* dchar() : display one char */
+void dchar(uint32_t code_point, int x, int y, int fg, int bg)
 {
     dstack_add_action(
         DSTACK_CALL(
             &dfont_char_dstack,
-            n,
-            x, y,
-            fg, bg
+            code_point,
+            x,
+            y,
+            fg,
+            bg
         ),
         NULL,
         NULL

@@ -37,7 +37,7 @@ int kterm_init(void)
         return -1;
     memcpy(
         &_kterm.display.driver,
-        (struct dstack_drv_interface*)driver->module_data,
+        (struct dstack_drv_interface*)driver->internal_data,
         sizeof(struct dstack_drv_interface)
     );
     if (_kterm.display.driver.bios.dclear == NULL)

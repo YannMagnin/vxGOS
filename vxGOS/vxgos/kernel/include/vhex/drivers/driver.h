@@ -58,8 +58,8 @@ struct vxdriver
         uint8_t UNUSED      :1;
     );
 
-    /* module related-internal data */
-    void *module_data;
+    /* driver-specific data */
+    void *internal_data;
 };
 
 

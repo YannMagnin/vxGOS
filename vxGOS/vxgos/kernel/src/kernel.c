@@ -27,7 +27,7 @@ void kernel_initialize(void)
 {
     if (kterm_init() != 0)
         kernel_panic(NULL);
-    //kterm_write("kterm initialised...\n");
+    kterm_write("kterm initialised...\n");
 
     while (true) {
         __asm__ volatile ("sleep");

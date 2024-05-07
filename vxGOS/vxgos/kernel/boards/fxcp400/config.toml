@@ -1,6 +1,5 @@
 [kernel]
 modules = [
-
 ]
 drivers = [
     'screen/r61523',

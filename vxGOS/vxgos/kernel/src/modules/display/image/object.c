@@ -1,3 +1,4 @@
+#if 0
 #include <vhex/display/image.h>
 #include <vhex/defs/utils.h>
 
@@ -146,4 +147,4 @@ bool image_copy_palette(image_t const *src, image_t *dst, int size)
     memcpy(dst->palette, src->palette, N * sizeof(uint16_t));
     return (true);
 }
-
+#endif

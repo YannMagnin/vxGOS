@@ -1,3 +1,4 @@
+#if 0
 #include <vhex/display/image.h>
 #include <vhex/defs/utils.h>
 
@@ -82,3 +83,4 @@ int image_data_size(image_t const *img)
 {
     return (img->stride * img->height);
 }
+#endif

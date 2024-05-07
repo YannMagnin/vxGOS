@@ -5,7 +5,7 @@
 
 #include "vhex/defs/types.h"
 #include "vhex/modules/display/interface.h"
-#include "vhex/modules/display/types.h"
+#include "vhex/modules/display/surface.h"
 
 //--
 // Internals

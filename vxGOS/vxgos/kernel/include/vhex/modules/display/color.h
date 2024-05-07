@@ -1,5 +1,5 @@
-#ifndef __VHEX_DISPLAY_COLOR__
-# define __VHEX_DISPLAY_COLOR__
+#ifndef VHEX_MODULES_DISPLAY_COLOR_H
+#define VHEX_MODULES_DISPLAY_COLOR_H 1
 
 
 //FIXME: this is plateform-specific :/
@@ -17,4 +17,4 @@ enum {
     C_INVERT = -2,
 };
 
-#endif /* __VHEX_DISPLAY_COLOR__ */
+#endif /* VHEX_MODULES_DISPLAY_COLOR_H */

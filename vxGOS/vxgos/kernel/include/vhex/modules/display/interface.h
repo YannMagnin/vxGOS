@@ -1,7 +1,7 @@
 #ifndef VHEX_MODULES_DISPLAY_INTERFACE
 #define VHEX_MODULES_DISPLAY_INTERFACE 1
 
-#include "vhex/modules/display/types.h"
+#include "vhex/modules/display/surface.h"
 
 /* dstack_drv_interface - driver interface */
 struct dstack_drv_interface {

@@ -1,3 +1,4 @@
+#if 0
 #include <vhex/display/image.h>
 #include <vhex/display/stack.h>
 
@@ -36,3 +37,4 @@ did_t dimage(image_t const *image, int x, int y, int mode)
         NULL
     );
 }
+#endif

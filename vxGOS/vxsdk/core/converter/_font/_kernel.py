@@ -28,15 +28,15 @@ if TYPE_CHECKING:
 def _font_kernel_generate_mono(asset: ConvAssetFont) -> str:
     """ generate source file content for non-proportional font
     """
-    content  =  '#include "vhex/display/font/types.h"\n'
+    content  =  '#include "vhex/modules/display/font.h"\n'
     content +=  '\n'
     content += f"/* {asset.name} - Vhex asset\n"
     content +=  '   This object has been converted by using the vxSDK '
     content +=  'converter */\n'
-    content += f"struct font const {asset.name} = " + "{\n"
+    content += f"struct vxfont const {asset.name} = " + "{\n"
     content += f"    .name = \"{asset.name}\",\n"
     content +=  '    .shape = {\n'
-    content +=  '        .prop = 0,\n'
+    content +=  '        .proportional = 0,\n'
     content +=  '    },\n'
     content +=  '    .char_spacing = 1,\n'
     content +=  '    .glyph = {\n'

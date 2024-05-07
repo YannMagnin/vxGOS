@@ -1,14 +1,20 @@
-#include <vhex/display/types.h>
-#include <vhex/display/stack.h>
-#include <vhex/display/font.h>
-#include <vhex/display/text.h>
-#include <vhex/display.h>
+#if 0
+//---
+// modules:display:font:render:dtext    - display text
+//---
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "vhex/display/stack.h"
+#include "vhex/display/font.h"
+#include "vhex/display/text.h"
+
+//---
+// Internals
+//---
 
 /* internal text information/cache */
 struct {
@@ -28,10 +34,9 @@ struct {
     }
 };
 
-//---
-// Internal module functions
-//---
+// display module specific
 
+/* __dtext_constructor() : display text subsystem constructor */
 void __dtext_constructor(void)
 {
     dtext_info.pool.number = 32;
@@ -40,12 +45,14 @@ void __dtext_constructor(void)
         dtext_info.pool.number,
         sizeof(*dtext_info.pool.text)
     );
-    for (int i = 0; i < dtext_info.pool.number; ++i) {
+    for (int i = 0; i < dtext_info.pool.number; ++i)
+    {
         dtext_info.pool.text[i].raw = malloc(32);
         dtext_info.pool.text[i].size = 32;
     }
 }
 
+/* __dtext_destructor() : display text subsystem destructor */
 void __dtext_destructor(void)
 {
     for (int i = 0; i < dtext_info.pool.number; ++i)
@@ -53,14 +60,15 @@ void __dtext_destructor(void)
     free(dtext_info.pool.text);
 }
 
+/* __dtext_quit() : internal helper */
 static void __dtext_quit(void)
 {
     dtext_info.pool.idx = -1;
 }
 
-//---
-// Private functions
-//---
+
+// helpers
+
 
 /* dtext_info_register() : duplicate the string */
 static char *dtext_info_register(char const * const str)
@@ -68,21 +76,24 @@ static char *dtext_info_register(char const * const str)
     size_t len;
 
     dtext_info.pool.idx += 1;
-    if (dtext_info.pool.idx >= dtext_info.pool.number) {
+    if (dtext_info.pool.idx >= dtext_info.pool.number)
+    {
         dtext_info.pool.number += dtext_info.pool.number;
         dtext_info.pool.text = reallocarray(
             dtext_info.pool.text,
             dtext_info.pool.number,
             sizeof(*dtext_info.pool.text)
         );
-        for (int i = dtext_info.pool.idx; i < dtext_info.pool.number; ++i) {
+        for (int i = dtext_info.pool.idx; i < dtext_info.pool.number; ++i)
+        {
             dtext_info.pool.text[i].raw = malloc(32);
             dtext_info.pool.text[i].size = 32;
         }
     }
 
     len = strlen(str) + 1;
-    if (len >= dtext_info.pool.text[dtext_info.pool.idx].size) {
+    if (len >= dtext_info.pool.text[dtext_info.pool.idx].size)
+    {
         dtext_info.pool.text[dtext_info.pool.idx].size = len;
         dtext_info.pool.text[dtext_info.pool.idx].raw = reallocarray(
             dtext_info.pool.text[dtext_info.pool.idx].raw,
@@ -95,16 +106,14 @@ static char *dtext_info_register(char const * const str)
     return dtext_info.pool.text[dtext_info.pool.idx].raw;
 }
 
-//---
-// Dstack API
-//---
+// dstack API
 
 /* dfont_render() : draw caracter in surface */
-void dtext_dstack(dsurface_t *surface, uintptr_t *arg)
+static void dtext_dstack(struct dsurface *surface, uintptr_t *arg)
 {
     uint32_t code_point;
     uint8_t const * str;
-    font_t *font;
+    struct vxfont *font;
     int glyph_idx;
     int glyph_width;
     int counter;
@@ -198,3 +207,4 @@ did_t dtext(int x, int y, int fg, char const * const text)
 {
     return (dtext_opt(x, y, fg, C_NONE, DTEXT_LEFT | DTEXT_TOP, text, -1));
 }
+#endif

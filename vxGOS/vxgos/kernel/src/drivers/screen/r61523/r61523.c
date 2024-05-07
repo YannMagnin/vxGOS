@@ -69,10 +69,28 @@ int r61523_hw_dclear(int color)
 /* r61523_hw_dpixel() : drawing pixel on screen */
 int r61523_hw_dpixel(int x, int y, int color)
 {
-    (void)x;
-    (void)y;
-    (void)color;
-    return -1;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+
+    x1 = x + 40 + 1;
+    x2 = x + 40 + 1;
+    y1 = y + 0;
+    y2 = y + 1;
+    _r61523_hw_select(set_column_address);
+    _r61523_hw_write((x1 >> 8) & 0x03);
+    _r61523_hw_write((x1 >> 0) & 0xff);
+    _r61523_hw_write((x2 >> 8) & 0x03);
+    _r61523_hw_write((x2 >> 0) & 0xff);
+    _r61523_hw_select(set_page_address);
+    _r61523_hw_write((y1 >> 8) & 0x03);
+    _r61523_hw_write((y1 >> 0) & 0xff);
+    _r61523_hw_write((y2 >> 8) & 0x03);
+    _r61523_hw_write((y2 >> 0) & 0xff);
+    _r61523_hw_select(write_memory_start);
+    _r61523_hw_write(color & 0xffff);
+    return 0;
 }
 
 /* r61523_hw_dscroll() : scroll the screen */

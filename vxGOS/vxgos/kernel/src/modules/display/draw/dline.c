@@ -1,19 +1,36 @@
-#include <vhex/display/draw/line.h>
-#include <vhex/display/draw/pixel.h>
-#include <vhex/display.h>
-#include <vhex/defs/utils.h>
+//---
+// modules:display:draw:dline   - display line
+//---
+
+#include "vhex/modules/display/draw/line.h"
+#include "vhex/modules/display/surface.h"
+#include "vhex/modules/display/color.h"
+#include "vhex/modules/display/stack.h"
+#include "vhex/defs/utils.h"
 
 //---
-// kernel-level API
+// Internals
 //---
+
+/* external symbols */
+extern void dpixel_render(struct dsurface *surface, int x, int y, int color);
 
 /* dline(): Bresenham line drawing algorithm
-   Remotely adapted from MonochromeLib code by Pierre "PerriotLL" Le Gall.
-   Relies on platform-dependent dhline() and dvline() for optimized situations.
-   @x1 @y1 @x2 @y2  Coordinates of endpoints of line (included)
-   @color           Any color accepted by dpixel() on the platform */
-void dline_render(dsurface_t *s, int color, int x1, int y1, int x2, int y2)
-{
+ *
+ * @note
+ * - public symbol to allow invocation in other render primitives
+ * - hardcoded for 16-bit color
+ * - remotely adapted from MonochromeLib code by Pierre "PerriotLL" Le Gall.
+ * - relies on platform-dependent dhline() and dvline() for optimized
+ *   situations */
+void dline_render(
+    struct dsurface *surface,
+    int color,
+    int x1,
+    int y1,
+    int x2,
+    int y2
+) {
     int i;
     int x = x1;
     int y = y1;
@@ -26,7 +43,7 @@ void dline_render(dsurface_t *s, int color, int x1, int y1, int x2, int y2)
     dx = (dx >= 0 ? dx : -dx);
     dy = (dy >= 0 ? dy : -dy);
 
-    dpixel_render(s, x1, y1, color);
+    dpixel_render(surface, x1, y1, color);
 
     if(dx >= dy) {
         /* Start with a non-zero cumul to even the overdue between the
@@ -40,7 +57,7 @@ void dline_render(dsurface_t *s, int color, int x1, int y1, int x2, int y2)
                 cumul -= dx;
                 y += sy;
             }
-            dpixel_render(s, x, y, color);
+            dpixel_render(surface, x, y, color);
         }
     } else {
         cumul = dy >> 1;
@@ -52,16 +69,24 @@ void dline_render(dsurface_t *s, int color, int x1, int y1, int x2, int y2)
                 cumul -= dy;
                 x += sx;
             }
-            dpixel_render(s, x, y, color);
+            dpixel_render(surface, x, y, color);
         }
     }
 
-    dpixel_render(s, x2, y2, color);
+    dpixel_render(surface, x2, y2, color);
 }
 
-/* dhline_render() : optimized horizontal line */
-void dhline_render(dsurface_t *surface, int color, int y, int x1, int x2)
-{
+/* dhline_render() : optimized horizontal line
+ *
+ * @note
+ * - hardcoded for 16-bit color */
+void dhline_render(
+    struct dsurface *surface,
+    int color,
+    int y,
+    int x1,
+    int x2
+) {
     /* Order and bounds */
     if(y  < surface->y1 || y  > surface->y2) return;
     if(x1 > surface->x2 || x2 < surface->x1) return;
@@ -104,9 +129,17 @@ void dhline_render(dsurface_t *surface, int color, int y, int x1, int x2)
     }
 }
 
-/* dvline_render() : optimized drawing function for vertical line */
-void dvline_render(dsurface_t *surface, int color, int x, int y1, int y2)
-{
+/* dvline_render() : optimized drawing function for vertical line
+ *
+ * @note
+ * - hardcoded for 16-bit color */
+void dvline_render(
+    struct dsurface *surface,
+    int color,
+    int x,
+    int y1,
+    int y2
+) {
     /* Order and bounds */
     if(x < surface->x1 || x > surface->x2)   return;
     if(y1 > surface->y2 || y2 < surface->y1) return;
@@ -134,12 +167,10 @@ void dvline_render(dsurface_t *surface, int color, int x, int y1, int y2)
     }
 }
 
-//---
-// Dstack-level API
-//---
+// display stack
 
 /* dline_dstack() : dstack wrapper line primitive */
-void dline_dstack(dsurface_t *surface, uintptr_t *args)
+static void dline_dstack(struct dsurface *surface, uintptr_t *args)
 {
     dline_render(
         surface,
@@ -152,7 +183,7 @@ void dline_dstack(dsurface_t *surface, uintptr_t *args)
 }
 
 /* dhline_dstack() : dstack wrapper horizontal line primitive */
-void dhline_dstack(dsurface_t *surface, uintptr_t *args)
+static void dhline_dstack(struct dsurface *surface, uintptr_t *args)
 {
     dhline_render(
         surface,
@@ -164,7 +195,7 @@ void dhline_dstack(dsurface_t *surface, uintptr_t *args)
 }
 
 /* dvline_dstack() : dstack wrapper vertical line primitive */
-void dvline_dstack(dsurface_t *surface, uintptr_t *args)
+static void dvline_dstack(struct dsurface *surface, uintptr_t *args)
 {
     dvline_render(
         surface,
@@ -176,15 +207,17 @@ void dvline_dstack(dsurface_t *surface, uintptr_t *args)
 }
 
 //---
-// User-level API
+// Public
 //---
 
-/* dline(): Render a straight line */
+/* dline(): Render a straight line
+ *
+ * @note
+ * - support optimized drawing for horizontal and vertical line */
 void dline(int color, int x1, int y1, int x2, int y2)
 {
-    if(color == C_NONE) return;
-
-    /* Possible optimizations */
+    if(color == C_NONE)
+        return;
     if(y1 == y2)
     {
         dstack_add_action(

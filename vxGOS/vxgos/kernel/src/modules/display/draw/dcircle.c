@@ -1,15 +1,30 @@
-#include <vhex/display/draw/circle.h>
-#include <vhex/display/draw/line.h>
-#include <vhex/display.h>
-
 //---
-// Kernel-level API
+// modules:display:draw:dcircle - display circle
 //---
 
-/* dcircle_render() : real drawing algorithm */
+#include "vhex/modules/display/draw/circle.h"
+#include "vhex/modules/display/color.h"
+#include "vhex/modules/display/surface.h"
+#include "vhex/modules/display/stack.h"
+
+//---
+// Internal
+//---
+
+/*external symbols */
+extern void dhline_render(
+    struct dsurface *surface,
+    int color,
+    int y,
+    int x1,
+    int x2
+);
+
+/* dcircle_filled_render() : filled circle algorithm */
 void dcircle_filled_render(
-    dsurface_t *surface,
-    int x, int y,
+    struct dsurface *surface,
+    int x,
+    int y,
     int radius,
     int color
 ) {
@@ -40,12 +55,8 @@ void dcircle_filled_render(
     }
 }
 
-//---
-// Dstack-level API
-//---
-
 /* dcircle_filled_dstack() : dstack wrapper primitive */
-void dcircle_filled_dstack(dsurface_t *surface, uintptr_t *args)
+static void dcircle_filled_dstack(struct dsurface *surface, uintptr_t *args)
 {
     dcircle_filled_render(
         surface,
@@ -57,7 +68,7 @@ void dcircle_filled_dstack(dsurface_t *surface, uintptr_t *args)
 }
 
 //---
-// User-level API
+// Public
 //---
 
 /* dcircle_filled() : draw a filled circle */

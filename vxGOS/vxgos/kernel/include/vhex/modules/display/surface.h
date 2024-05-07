@@ -1,10 +1,11 @@
-#ifndef __VHEX_DISPLAY_TYPES__
-# define __VHEX_DISPLAY_TYPES__
+#ifndef VHEX_MODULES_DISPLAY_SURFACE_H
+#define VHEX_MODULES_DISPLAY_SURFACE_H
 
-#include <vhex/defs/types.h>
+#include "vhex/defs/types.h"
 
-/* draw ID */
-typedef int did_t;
+//---
+// Public
+//---
 
 /* dsurface - Describe the surface */
 struct dsurface {
@@ -18,4 +19,4 @@ struct dsurface {
     int number;
 };
 
-#endif /* __VHEX_DISPLAY_TYPES__ */
+#endif /* VHEX_MODULES_DISPLAY_SURFACE_H */

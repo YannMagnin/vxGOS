@@ -1,3 +1,4 @@
+#if 0
 #include <vhex/display/image.h>
 #include <vhex/display/shader.h>
 #include <vhex/display.h>
@@ -247,3 +248,4 @@ did_t dsubimage(
         NULL
     );
 }
+#endif

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "vhex/modules/display/types.h"
+#include "vhex/modules/display/surface.h"
 
 //---
 // Public
