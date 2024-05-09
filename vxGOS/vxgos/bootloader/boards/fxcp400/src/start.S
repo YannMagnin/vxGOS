@@ -121,15 +121,45 @@ aslr_patching:
     ! - we MUST perform patching using P2 (uncacheable) area to avoid
     !   inconsistency behaviour with the cache.
     ! - symbols are relocalize through P1 (cacheable) area
+    ! - for some reason (packed), relocation offset can point unaligned data
+    ! - all addresses from the symbol table is assumed to be 4-aligned
+    ! @registers
+    ! - r0  - symbol table
+    ! - r1  - kernel base address (P2)
+    ! - r2  - kernel base address (P1)
+    ! - r3  - /
+    ! - r4  - image base addr (physical)
+    ! - r5  - image size
+    ! - r6  - kernel image addr (physical)
+    ! - r7  - kernel image size
+    ! - r8  - /
+    ! - r9  - /
 aslr_symbol_patch_loop:
-    mov.l   @r0, r8
-    tst     r8, r8
+    mov.l   @r0, r3
+    tst     r3, r3
     bt      aslr_commit
-    add     r2, r8
-    mov.l   @r8, r9
-    add     r1, r9
-    mov.l   r9, @r8
-    mov.l   r8, @r0
+    add     r2, r3
+    mov.b   @r3+, r8
+    shll8   r8
+    mov.b   @r3+, r9
+    extu.b  r9, r9
+    or      r9, r8
+    shll8   r9
+    mov.b   @r3+, r9
+    extu.b  r9, r9
+    or      r9, r8
+    shll8   r8
+    mov.b   @r3+, r9
+    extu.b  r9, r9
+    or      r9, r8
+    add     r1, r8
+    mov.b   r8, @-r3
+    shlr8   r8
+    mov.b   r8, @-r3
+    shlr8   r8
+    mov.b   r8, @-r3
+    shlr8   r8
+    mov.b   r8, @-r3
     add     #4, r0
     bra     aslr_symbol_patch_loop
     nop

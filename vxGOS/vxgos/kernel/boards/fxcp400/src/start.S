@@ -91,6 +91,13 @@ kernel_symbols_patching:
 
     ! The table symbol is not already resolved (its our job), we must
     ! manually calculate the real address of the symbols table
+    ! @note
+    ! - we need to ensure that the kernel base address in physical by
+    !   clearing its upper 3 bits (SH4ALDSP - section 7. MMU)
+    shll2   kernel_image_base_addr
+    shll    kernel_image_base_addr
+    shlr    kernel_image_base_addr
+    shlr2   kernel_image_base_addr
     mov.l   p1_addr_base, r1
     mov.l   p2_addr_base, r2
     or      kernel_image_base_addr, r2
@@ -102,16 +109,17 @@ kernel_symbols_patching:
     ! - we MUST perform patching using P2 (uncacheable) area to avoid
     !   inconsistency behaviour with the physical cache.
     ! - symbols are relocalized through P1 (cacheable) area
-    ! - for some reason, relocation offset can point unaligned data
+    ! - for some reason (packed), relocation offset can point unaligned data
     ! - all addresses from the symbol table is assumed to be 4-aligned
     ! @registers
     ! - r0  - symbol table
     ! - r1  - kernel base address (P2)
     ! - r2  - kernel base address (P1)
-    ! - r3  - symbol offset
+    ! - r3  - /
     ! - r4  - kernel base address (physical)
     ! - r5  - kernel size
-    ! - r6  - symbol data
+    ! - r6  - /
+    ! - r7  - /
 _kernel_symbols_patch_loop:
     mov.l   @r0, r3
     tst     r3, r3
