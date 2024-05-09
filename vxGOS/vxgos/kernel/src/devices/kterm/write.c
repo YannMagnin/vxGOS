@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "vhex/devices/kterm.h"
-#include "vhex/modules/display/font.h"
+#include "vhex/_klibc.h"
 
 //---
 // Internals
@@ -18,23 +18,20 @@ extern struct _kterm _kterm;
 
 /* internal function */
 extern int kterm_line_discipline(struct _kterm *kterm, char n);
-extern int kterm_dascii(int x, int y, char n);
+extern int kterm_dascii(struct _kterm *kterm);
 
 /* _kterm_display_string() : display string */
 static int _kterm_display_string(
     struct _kterm *kterm,
     char const * const buffer
 ) {
-    struct vxfont *font;
     int i;
 
-    if (dfont_get(&font) != 0)
-        return -1;
     for (i = 0 ; buffer[i] != '\0' ; ++i)
     {
         if (kterm_line_discipline(kterm, buffer[i]) != 0)
             continue;
-        if (kterm_dascii(kterm->cursor.x, kterm->cursor.y, buffer[i]) != 0)
+        if (kterm_dascii(kterm) != 0)
             break;
     }
     return i;
@@ -56,7 +53,7 @@ int kterm_write(char const * const format, ...)
     if (buffer == NULL)
         return -2;
     va_start(ap, format);
-    vsnprintf(buffer, 128, format, ap);
+    klibc_vsnprintf(buffer, 128, format, ap);
     va_end(ap);
     return _kterm_display_string(&_kterm, buffer);
 }

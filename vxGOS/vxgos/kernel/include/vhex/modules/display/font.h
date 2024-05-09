@@ -68,7 +68,7 @@ struct vxfont
         uint8_t block_count;
     } unicode;
 
-} VPACKED(4);
+};
 
 
 // drawing API

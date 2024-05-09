@@ -7,6 +7,7 @@
 #include "vhex/devices/kterm.h"
 #include "vhex/modules/display/interface.h"
 #include "vhex/drivers/driver.h"
+#include "vhex/_klibc.h"
 
 //---
 // Public
@@ -32,20 +33,22 @@ int kterm_init(void)
 {
     struct vxdriver *driver;
 
-    memset(&_kterm, 0x00, sizeof(struct _kterm));
-    if (kernel_driver_find(&driver, "display") != 0)
+    klibc_memset(&_kterm, 0x00, sizeof(struct _kterm));
+    if (kterm_font_get(&_kterm.display.font) != 0)
         return -1;
-    memcpy(
+    if (kernel_driver_find(&driver, "display") != 0)
+        return -2;
+    klibc_memcpy(
         &_kterm.display.driver,
         (struct dstack_drv_interface*)driver->internal_data,
         sizeof(struct dstack_drv_interface)
     );
     if (_kterm.display.driver.bios.dclear == NULL)
-        return -2;
-    if (_kterm.display.driver.bios.dpixel == NULL)
         return -3;
-    if (_kterm.display.driver.bios.dscroll == NULL)
+    if (_kterm.display.driver.bios.dpixel == NULL)
         return -4;
+    if (_kterm.display.driver.bios.dscroll == NULL)
+        return -5;
     if (driver->hpowered != NULL && driver->hpowered() == false) {
         driver->hpoweron();
         driver->configure(NULL);

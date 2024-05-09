@@ -74,7 +74,9 @@ int r61523_hw_dpixel(int x, int y, int color)
     int x2;
     int y2;
 
-    x1 = x + 40 + 1;
+    if ((unsigned)x >= 320 || (unsigned)y >= 520)
+        return -1;
+    x1 = x + 40 + 0;
     x2 = x + 40 + 1;
     y1 = y + 0;
     y2 = y + 1;

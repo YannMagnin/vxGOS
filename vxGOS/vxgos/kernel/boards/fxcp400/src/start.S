@@ -86,8 +86,7 @@ kernel_symbols_patching:
     ! kernel symbols patching
     !
     ! perform kernel symbols patching by using the symbols table information
-    ! (injected during the image build steps) at the end of the kernel code
-    ! marked with ___kernel_code_end.
+    ! (injected during the image build steps) at the end of the kernel image
     ! ---
 
     ! The table symbol is not already resolved (its our job), we must
@@ -100,27 +99,51 @@ kernel_symbols_patching:
 
     ! walk trough the symbols table and patch all location
     ! @note
-    ! - we MUST perform patching using P2 (uncachable) area to avoid
+    ! - we MUST perform patching using P2 (uncacheable) area to avoid
     !   inconsistency behaviour with the physical cache.
-    ! - symbols are relocalized through P1 (cachable) area
+    ! - symbols are relocalized through P1 (cacheable) area
+    ! - for some reason, relocation offset can point unaligned data
+    ! - all addresses from the symbol table is assumed to be 4-aligned
+    ! @registers
+    ! - r0  - symbol table
+    ! - r1  - kernel base address (P2)
+    ! - r2  - kernel base address (P1)
+    ! - r3  - symbol offset
+    ! - r4  - kernel base address (physical)
+    ! - r5  - kernel size
+    ! - r6  - symbol data
 _kernel_symbols_patch_loop:
-    mov.l   @r0, r8
-    tst     r8, r8
+    mov.l   @r0, r3
+    tst     r3, r3
     bt      _kernel_symbols_patch_commit
-    add     r2, r8
-    mov.l   @r8, r9
-    add     r1, r9
-    mov.l   r9, @r8
-    mov.l   r8, @r0
+    add     r2, r3
+    mov.b   @r3+, r6
+    shll8   r6
+    mov.b   @r3+, r7
+    extu.b  r7, r7
+    or      r7, r6
+    shll8   r6
+    mov.b   @r3+, r7
+    extu.b  r7, r7
+    or      r7, r6
+    shll8   r6
+    mov.b   @r3+, r7
+    extu.b  r7, r7
+    or      r7, r6
+    add     r1, r6
+    mov.b   r6, @-r3
+    shlr8   r6
+    mov.b   r6, @-r3
+    shlr8   r6
+    mov.b   r6, @-r3
+    shlr8   r6
+    mov.b   r6, @-r3
     add     #4, r0
     bra     _kernel_symbols_patch_loop
     nop
 
-    mov     #5, r0
-    rts
-    nop
-
 _kernel_symbols_patch_commit:
+
     ! Now that kernel symbols has been updated using uncachable area (P2), we
     ! need to invalidate all Operands Cache (OC) entries that the MPU have
     ! possibly setup to avoid inconsistent `mov.x` behaviour

@@ -73,6 +73,7 @@ def _board_kernel_find_srcs(
     srcs_list += list((prefix/'src/devices').rglob('*.[csS]'))
     srcs_list += list((prefix/'src/modules').glob('*.[csS]'))
     srcs_list += list((prefix/'src/drivers').glob('*.[csS]'))
+    srcs_list += list((prefix/'src/_klibc').glob('*.[csS]'))
     srcs_list += list((prefix/f"boards/{board_name}/src").rglob('*.[csS]'))
     for part in ('modules', 'drivers'):
         for target in board_config['kernel'][part]:

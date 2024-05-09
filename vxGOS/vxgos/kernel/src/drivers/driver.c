@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "vhex/drivers/driver.h"
+#include "vhex/_klibc.h"
 
 //---
 // Public
@@ -47,12 +48,12 @@ int kernel_driver_find(struct vxdriver **driver, char *name)
 
     if (driver == NULL)
         return -1;
-    special_display     = !strcmp("display", name);
-    special_keyboard    = !strcmp("keyboard", name);
-    special_rtc         = !strcmp("rtc", name);
-    special_timer       = !strcmp("timer", name);
-    special_dma         = !strcmp("dma", name);
-    special_usb         = !strcmp("usb", name);
+    special_display     = !klibc_strcmp("display", name);
+    special_keyboard    = !klibc_strcmp("keyboard", name);
+    special_rtc         = !klibc_strcmp("rtc", name);
+    special_timer       = !klibc_strcmp("timer", name);
+    special_dma         = !klibc_strcmp("dma", name);
+    special_usb         = !klibc_strcmp("usb", name);
     driver[0] = NULL;
     while (true)
     {
@@ -70,7 +71,7 @@ int kernel_driver_find(struct vxdriver **driver, char *name)
             return 0;
         if (special_usb && (driver[0])->flags.USB)
             return 0;
-        if (strcmp(name, (driver[0])->name) == 0)
+        if (klibc_strcmp(name, (driver[0])->name) == 0)
             return 0;
     }
     driver[0] = NULL;

@@ -7,6 +7,7 @@ __all__ = [
 ]
 from typing import Optional, Any
 from pathlib import Path
+from io import BufferedReader
 import sys
 
 from vxsdk.core.utils import utils_cmd_exec
@@ -35,6 +36,16 @@ def _patch_uint32(image: bytearray, offset: int, data: int) -> None:
     image[offset + 1] = (data & 0x00ff0000) >> 16
     image[offset + 2] = (data & 0x0000ff00) >> 8
     image[offset + 3] = (data & 0x000000ff) >> 0
+
+def _file_fetch_blob(file: BufferedReader) -> bytearray:
+    """ read file and add missing padding if needed
+    """
+    file_blob  = bytearray(0)
+    file_blob += file.read()
+    if (len(file_blob) % 4) != 0:
+        print('  - added missing padding')
+        file_blob += b'\x00' * (4 - (len(file_blob) % 4))
+    return file_blob
 
 #---
 # Public
@@ -104,12 +115,12 @@ def generate_aslr_blob(
     print('- generate the image fragment blob...')
     img_blob = bytearray(0)
     with open(raw_file, 'rb') as rawbinfile:
-        img_blob += rawbinfile.read()
+        img_blob += _file_fetch_blob(rawbinfile)
         _patch_uint32(img_blob, 12, len(img_blob))
         img_blob[0]  = 0b11010000   # (MSB) mov.l @(2, PC), r0
         img_blob[1]  = 0b00000010   # (LSB) mov.l @(2, PC), r0
     with open(symtab_file, 'rb') as symtabfile:
-        img_blob += symtabfile.read()
+        img_blob += _file_fetch_blob(symtabfile)
     bzimg_file.unlink(missing_ok=True)
     with open(bzimg_file, 'xb') as bzimgfile:
         bzimgfile.write(img_blob)
@@ -130,7 +141,7 @@ def generate_final_image(
         if not project_path:
             continue
         with open(project_path, 'rb') as projectfile:
-            blob = projectfile.read()
+            blob = _file_fetch_blob(projectfile)
         if project_path == kernel_path:
             kernel_info[0] = len(blob)
             kernel_info[1] = len(image)

@@ -12,6 +12,7 @@ from typing import Optional, Any, cast
 from collections.abc import Generator
 from dataclasses import dataclass
 from pathlib import Path
+from copy import deepcopy
 import os
 import sys
 import shutil
@@ -128,9 +129,9 @@ def board_manager_initialise(board_name: str) -> None:
     board_config = board_config_load(
         CONFIG_SDK_PREFIX_SRCS/f"boards/{board_name}/config.toml",
     )
-    board_bootloader_initialise(board_name, board_config)
-    board_kernel_initialise(board_name, board_config)
-    #board_os_initialise(board_name, board_config)
+    board_bootloader_initialise(board_name, deepcopy(board_config))
+    board_kernel_initialise(board_name, deepcopy(board_config))
+    #board_os_initialise(board_name, deepcopy(board_config))
 
 def board_manager_select(board_name: str) -> None:
     """ select a new board
@@ -166,10 +167,18 @@ def board_manager_build(
             'bootloader' : board_bootloader_build,
             'kernel'     : board_kernel_build,
             #'os'        : board_os_build,
-        }[project_target](board.name, board_config, generator)
+        }[project_target](board.name, deepcopy(board_config), generator)
     file = (
-        board_bootloader_build(board.name, board_config, generator),
-        board_kernel_build(board.name, board_config, generator),
+        board_bootloader_build(
+            board.name,
+            deepcopy(board_config),
+            generator,
+        ),
+        board_kernel_build(
+            board.name,
+            deepcopy(board_config),
+            generator,
+        ),
         None,
     )
     log.user('[+] generate final image...')
