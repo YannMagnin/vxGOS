@@ -4,5 +4,5 @@ type            = 'font'
 grid_size       = '8x12'
 grid_padding    = 1
 grid_border     = 1
-proportional    = false
+proportional    = true
 line_height     = 9

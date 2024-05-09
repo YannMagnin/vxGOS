@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 # Internals
 #---
 
-def _font_kernel_generate_mono(asset: ConvAssetFont) -> str:
-    """ generate source file content for non-proportional font
+def _font_kernel_generate_file(asset: ConvAssetFont) -> str:
+    """ generate C source file content
     """
     content  =  '#include "vhex/modules/display/font.h"\n'
     content +=  '\n'
@@ -36,31 +36,45 @@ def _font_kernel_generate_mono(asset: ConvAssetFont) -> str:
     content += f"struct vxfont const {asset.name} = " + "{\n"
     content += f"    .name = \"{asset.name}\",\n"
     content +=  '    .shape = {\n'
-    content +=  '        .proportional = 0,\n'
+    if asset.is_proportional:
+        content +=  '        .proportional = 1,\n'
+    else:
+        content +=  '        .proportional = 0,\n'
     content +=  '    },\n'
     content +=  '    .char_spacing = 1,\n'
     content +=  '    .glyph = {\n'
     content += f"        .count       = {asset.glyph_count},\n"
     content += f"        .height      = {asset.glyph_height},\n"
     content += f"        .line_height = {asset.line_height},\n"
-    content +=  '        .mono = {\n'
-    content += f"            .width           = {asset.grid_size_x},\n"
-    content += f"            .char_block_size = {asset.glyph_size},\n"
-    content +=  '        },\n'
     line = 0
-    content +=  "        .data = (uint32_t[]){\n"
+    content +=  "        .data        = (uint32_t[]){\n"
     for pixel in asset.data:
         if line == 0:
-            content += '        '
+            content += '            '
         if line >= 1:
             content += ' '
         content += f"{pixel:#010x},"
-        if (line := line + 1) == 6:
+        if (line := line + 1) == 5:
             content += '\n'
             line = 0
     if line != 0:
         content += '\n'
     content +=  '        },\n'
+    content +=  '        .mono = {\n'
+    content += f"            .width           = {asset.grid_size_x},\n"
+    content += f"            .char_block_size = {asset.glyph_size},\n"
+    content +=  '        },\n'
+    if asset.is_proportional:
+        content += '        .prop = (struct __workaround[]){\n'
+        for props in asset.glyph_props:
+            content +=  '            {'
+            content += f" .width = {props[0]:>2},"
+            content += f" .index = {props[1]:>3},"
+            content += f" .shift = {props[2]:>2}"
+            content +=  ' },\n'
+        content += '        },\n'
+    else:
+        content += '        .prop = NULL,\n'
     content +=  '    },\n'
     content += '};\n'
     return content
@@ -77,6 +91,4 @@ def font_kernel_generate_source_file(
     """
     if asset.charset == 'unicode':
         log.emergency(f"{asset.name}: unsupported unicode font")
-    if asset.is_proportional:
-        log.emergency(f"{asset.name}: unsupported proportional font")
-    return _font_kernel_generate_mono(asset)
+    return _font_kernel_generate_file(asset)

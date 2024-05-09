@@ -63,5 +63,6 @@ int kterm_dascii(struct _kterm *kterm)
     }
 
     kterm->cursor.x += kterm->display.next_glyph_width;
+    kterm->cursor.x += kterm->display.font->char_spacing;
     return 0;
 }

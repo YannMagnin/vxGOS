@@ -41,33 +41,16 @@ struct vxfont
         uint8_t line_height;
         uint32_t *data;
         uint32_t count;
-
-        union {
-            /* For monospaced fonts */
-            struct {
-                uint8_t width;
-                uint16_t char_block_size;
-            } mono;
-            /* For proportional fonts */
-            struct __workaround {
-                uint8_t width;
-                uint16_t index;
-                uint8_t shift;
-            } *prop;
-        };
-    } glyph;
-
-    /* unicode blocks */
-    struct {
         struct {
-            /* Unicode point of first character in block */
-            uint32_t start   :20;
-            /* Length of block */
-            uint32_t length  :12;
-        } *blocks;
-        uint8_t block_count;
-    } unicode;
-
+            uint8_t width;
+            uint16_t char_block_size;
+        } mono;
+        struct __workaround {
+            uint8_t width;
+            uint16_t index;
+            uint8_t shift;
+        } *prop;
+    } glyph;
 };
 
 

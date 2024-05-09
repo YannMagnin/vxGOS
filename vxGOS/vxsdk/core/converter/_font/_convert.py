@@ -1,10 +1,12 @@
 """
 vxsdk.core.converter._font._convert - convert image to raw data
 """
+from __future__ import annotations
+
 __all__ = [
     'font_convert_img_to_raw',
 ]
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
@@ -13,11 +15,16 @@ from vxsdk.core.converter._font._glyph import (
     font_glyph_get_wgeometry,
     font_glyph_encode,
 )
-
-# theoricaly, we should import the class definition for typing indication
-# but since the said class manually invoke this module, we use `Any` as
-# type to avoid circular import design error
-#from vxsdk.core.converter._font.font import ConvAssetFont
+# bad design here
+# @note
+# The `ConvAssetFont` invoke this module with itself as a first argument,
+# so, if we want to use proper typing information (and not just `Any`), we
+# must use this dirty workaround to import the class only if a type
+# checking is performed.
+# However, we must import the special `__future__.annotations` which allow
+# partial defined classes to be used as typing information.
+if TYPE_CHECKING:
+    from vxsdk.core.converter._font.font import ConvAssetFont
 
 #---
 # Internals
@@ -28,7 +35,7 @@ from vxsdk.core.converter._font._glyph import (
 # pylint: disable=locally-disabled,R0913
 
 def _font_convert_proportional(
-    asset:          Any,
+    asset:          ConvAssetFont,
     img_info:       dict[str,Any],
     glyph_info:     list[int],
     grid_info:      list[int],
@@ -80,7 +87,7 @@ def _font_convert_proportional(
         _py += gheight * img.size[0]
 
 def _font_convert_monospaced(
-    asset:          Any,
+    asset:          ConvAssetFont,
     img_info:       dict[str,Any],
     glyph_info:     list[int],
     grid_info:      list[int],
@@ -110,7 +117,7 @@ def _font_convert_monospaced(
 # Public
 #---
 
-def font_convert_img_to_raw(asset: Any) -> None:
+def font_convert_img_to_raw(asset: ConvAssetFont) -> None:
     """ Generate font information
     """
     # generate image information
@@ -133,14 +140,14 @@ def font_convert_img_to_raw(asset: Any) -> None:
     # pre-calculate the number of row and column of the font
     grid_info = [0, 0]
     grid_info[0] = int((img.size[0] - (asset.grid_border * 2)) / gwidth)
-    grid_info[1] = int((img.size[1] - (asset.grid_border * 2)) /gheight)
+    grid_info[1] = int((img.size[1] - (asset.grid_border * 2)) / gheight)
     nb_col = grid_info[0]
     nb_row = grid_info[1]
     log.debug(f"nb_row = {nb_row} && nb_col = {nb_col}")
 
     # pre-calculate and prepare per-glyph information
     # @note
-    # The generated data is designed for 4-alignement padding. This to have
+    # The generated data is designed for 4-alignment padding. This to have
     # speed-up on drawing function.
     asset.glyph_size  = asset.grid_size_x * asset.grid_size_y
     asset.font_size   = asset.glyph_size * nb_row * nb_col
