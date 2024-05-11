@@ -37,8 +37,18 @@ void kernel_initialize(uintptr_t kernel_base_address, size_t kernel_size)
     // (todo) : kernel allocator
     kterm_write("[+] early 'board' module loading...\n");
     // (todo) : load board-specific module
-    kterm_write("[+] hypervisor bootstrapping...");
+    kterm_write("[+] hypervisor bootstrapping...\n");
     // (todo) : save the current world and install all driver
+
+    int counter = 0;
+    while (true)
+    {
+        kterm_write("- test scroll %d\n", counter);
+        for (int i = 0 ; i < 99999999 ; ++i) {
+            __asm__ volatile ("nop");
+        }
+        counter += 1;
+    }
 
     while (true) {
         __asm__ volatile ("sleep");

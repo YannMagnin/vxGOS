@@ -58,4 +58,13 @@ extern int r61523_hw_vram_send(
     uint16_t *vram
 );
 
+/* r61523_hw_vram_fetch() : fetch "on-screen" pixels */
+extern int r61523_hw_vram_fetch(
+    unsigned int x1,
+    unsigned int y1,
+    unsigned int x2,
+    unsigned int y2,
+    uint16_t *vram
+);
+
 #endif /* VHEX_DRIVERS_SCREEN_R61523_H */

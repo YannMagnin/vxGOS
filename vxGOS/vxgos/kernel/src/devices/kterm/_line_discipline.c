@@ -20,7 +20,10 @@ static void _kterm_vertical_update(struct _kterm *kterm)
         kterm->cursor.y = cursor_y;
         return;
     }
-    // (todo) : scroll
+    kterm->display.driver.bios.dscroll(
+        kterm->display.font->glyph.height,
+        0x0000
+    );
 }
 
 /* _kterm_horizontal_check() : check if the current char can be drawn */
