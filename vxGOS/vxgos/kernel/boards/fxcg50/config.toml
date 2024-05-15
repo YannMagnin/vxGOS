@@ -1,20 +1,9 @@
 [kernel]
 modules = [
-    'display',
-    'hypervisor',
-    'keyboard',
-    'kmalloc',
-    'timer',
-    'rtc',
-    'dma',
-    'usb',
-    'fs',
 ]
 drivers = [
-    'screen/R61524',
-    'mpu/sh/sh7305',
+    'screen/r61524',
 ]
 libraries = [
-    '-lc',
     '-lgcc',
 ]

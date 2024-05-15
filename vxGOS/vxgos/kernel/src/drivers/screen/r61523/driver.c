@@ -1,5 +1,5 @@
 //---
-// drivers:screen:r61523:device - driver declaration
+// drivers:screen:r61523:driver - driver declaration
 //---
 
 #include "vhex/drivers/screen/r61523.h"
@@ -30,8 +30,8 @@ struct vxdriver drv_r61523 = {
             .frame_end          = &r61523_frame_end,
         },
         .bios   = {
-            .dpixel             = &r61523_hw_dpixel,
             .dclear             = &r61523_hw_dclear,
+            .dpixel             = &r61523_hw_dpixel,
             .dscroll            = &r61523_hw_dscroll,
         },
         .screen = {

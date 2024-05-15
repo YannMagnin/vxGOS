@@ -148,16 +148,6 @@ SECTIONS
      *  us to save ~3k in the final ELF. */
     .bss ALIGN(4) : {
 
-        /* set some space for interrupt gates
-         *
-         * - interruption event range is [0x400;0xfa0]
-         * - interruption granularity is 0x20 (0x400, 0x420, 0x440, ...)
-         *
-         * So, the gap for each gates will be:
-         *  (0xfa0 + 0x020) - 0x400 = 0xbc0,
-         * which give us 3008 bytes. We will use 3ko. */
-        . = . + 3072;
-
         /* bss section included to avoid missaligned segment */
         *(.bss);
         *(.bss.*);

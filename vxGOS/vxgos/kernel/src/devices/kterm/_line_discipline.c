@@ -13,10 +13,12 @@
 static void _kterm_vertical_update(struct _kterm *kterm)
 {
     size_t cursor_y;
+    size_t cursor_y_max;
 
     kterm->cursor.x = 0;
     cursor_y = kterm->cursor.y + kterm->display.font->glyph.height;
-    if (cursor_y < kterm->display.driver.screen.height) {
+    cursor_y_max = cursor_y + kterm->display.font->glyph.height;
+    if (cursor_y_max < kterm->display.driver.screen.height) {
         kterm->cursor.y = cursor_y;
         return;
     }
@@ -58,7 +60,6 @@ static int _kterm_char_check(struct _kterm *kterm, char n)
     kterm->display.next_glyph_index = n - ' ';
     return 0;
 }
-
 
 //---
 // Public

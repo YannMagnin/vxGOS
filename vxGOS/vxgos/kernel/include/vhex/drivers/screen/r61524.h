@@ -1,52 +1,87 @@
-#ifndef __VHEX_DRIVER_SCREEN_R61524__
-# define __VHEX_DRIVER_SCREEN_R61524__
+#ifndef VHEX_DRIVERS_SCREEN_R61524_H
+#define VHEX_DRIVERS_SCREEN_R61524_H 1
 
-#include <vhex/defs/attributes.h>
-#include <vhex/defs/types.h>
+#include <stdint.h>
 
-/* Registers and operations */
-enum {
-    device_code_read            = 0x000,
-    driver_output_control       = 0x001,
-    entry_mode                  = 0x003,
-    display_control_2           = 0x008,
-    low_power_control           = 0x00b,
+#include "vhex/modules/display/surface.h"
 
-    ram_address_horizontal      = 0x200,
-    ram_address_vertical        = 0x201,
-    write_data                  = 0x202,
+//---
+// Public
+//---
 
-    horizontal_ram_start        = 0x210,
-    horizontal_ram_end          = 0x211,
-    vertical_ram_start          = 0x212,
-    vertical_ram_end            = 0x213,
+
+// driver primitives
+
+#define R61524_SCREEN_WIDTH     396
+#define R61524_SCREEN_HEIGHT    224
+
+/* driver context */
+struct r61524_drv_ctx
+{
+    uint16_t HSA;
+    uint16_t HEA;
+    uint16_t VSA;
+    uint16_t VEA;
 };
 
+/* r61524_hw_configure() : prepare the driver context */
+extern void r61524_hw_configure(struct r61524_drv_ctx *context);
 
-VINLINE static void r61524_select(uint16_t reg)
-{
-    /* Clear RS and write the register number */
-    *(volatile uint8_t *)0xa405013c &= ~0x10;
-    __asm__ volatile ("synco"::);
-    *(volatile uint16_t *)0xb4000000 = reg;
-    __asm__ volatile ("synco"::);
+/* r61524_hw_hsave() : save the current driver context */
+extern void r61524_hw_hsave(struct r61524_drv_ctx *context);
 
-    /* Set RS back. We don't do this in read()/write() because the display
-       driver is optimized for consecutive GRAM access. LCD-transfers will
-       be faster when executing select() followed by several calls to
-       write(). (Although most applications should use the DMA instead.) */
-    *(volatile uint8_t *)0xa405013c |= 0x10;
-    __asm__ volatile ("synco"::);
-}
+/* r61524_hw_hrestore() : restore saved context */
+extern void r61524_hw_hrestore(struct r61524_drv_ctx const *context);
 
-VINLINE static uint16_t r61524_read(void)
-{
-    return *(volatile uint16_t *)0xb4000000;
-}
 
-VINLINE static void r61524_write(uint16_t data)
-{
-    *(volatile uint16_t *)0xb4000000 = data;
-}
+// display primitives
 
-#endif /* __VHEX_DRIVER_SCREEN_R61524__ */
+
+/* r61524_frame_start() - setup the display surface */
+extern int r61524_frame_start(struct dsurface *surface);
+
+/* r61524_frame_frag_next() : next surface fragment */
+extern int r61524_frame_frag_next(struct dsurface *surface);
+
+/* r61523_frame_frag_send() : send the fragment to screen */
+extern int r61524_frame_frag_send(struct dsurface *surface);
+
+/* r61524_frame_end() : "close" the surface */
+extern int r61524_frame_end(struct dsurface *surface);
+
+
+// "on-screen" primitives
+
+
+/* r61524_hw_dclear() : optimised screen clearing without vram */
+extern int r61524_hw_dclear(int color);
+
+/* r61524_hw_dpixel() : drawing pixel on screen */
+extern int r61524_hw_dpixel(int x, int y, int color);
+
+/* r61524_hw_dscroll() : scroll the screen */
+extern int r61524_hw_dscroll(int offset, int direction);
+
+
+// low-level primitives
+
+
+/* r61524_hw_vram_send() : send the vram to the screen */
+extern int r61524_hw_vram_send(
+    unsigned int x1,
+    unsigned int y1,
+    unsigned int x2,
+    unsigned int y2,
+    uint16_t *vram
+);
+
+/* r61524_hw_vram_fetch() : fetch "on-screen" pixels */
+extern int r61524_hw_vram_fetch(
+    unsigned int x1,
+    unsigned int y1,
+    unsigned int x2,
+    unsigned int y2,
+    uint16_t *vram
+);
+
+#endif /* VHEX_DRIVER_SCREEN_R61524_H */

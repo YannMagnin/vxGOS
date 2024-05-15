@@ -84,6 +84,8 @@ static inline void _r61523_hw_setup_window(
 
 void r61523_hw_debug(void)
 {
+    extern void kterm_write(void *a, ...);
+
     _r61523_hw_select(get_power_mode);
     kterm_write("POWER_MODE\t%x\n", _r61523_hw_read());
     _r61523_hw_select(get_address_mode);

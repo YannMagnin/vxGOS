@@ -1,5 +1,5 @@
 //---
-// drivers:screen:r61523    - Casio's fxcp400 screen
+// drivers:screen:r61523:display    - display pipeline primitives
 //---
 
 #include "vhex/drivers/screen/r61523.h"
@@ -8,7 +8,7 @@
 // Public
 //---
 
-/* r61523_frame_start() - setup the (physical) screen and reset surface
+/* r61523_frame_start() - setup the display surface information
  *
  * @note
  * - we use the Casio's internal VRAM to save a lot of vram */

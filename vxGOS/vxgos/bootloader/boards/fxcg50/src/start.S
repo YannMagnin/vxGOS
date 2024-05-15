@@ -65,18 +65,35 @@ function(__fxcg50_bootloader_start):
     ! - r6  (res) URAM size
     ! - r7  (in) URAM physical base address (P1)
     ! - r8  (in) URAM physical base address (P2)
-    ! - r9  reserved
-    ! - r10 reserved
-    ! - r11 reserved
+    ! - r9  /
+    ! - r10 /
+    ! - r11 /
 aslr_symbol_patch_loop:
     mov.l   @r0, r10
     tst     r10, r10
     bt      aslr_commit
     add     r8, r10
-    mov.l   @r10, r11
+    mov.b   @r10+, r11
+    shll8   r11
+    mov.b   @r10+, r9
+    extu.b  r9, r9
+    or      r9, r11
+    shll8   r11
+    mov.b   @r10+, r9
+    extu.b  r9, r9
+    or      r9, r11
+    shll8   r11
+    mov.b   @r10+, r9
+    extu.b  r9, r9
+    or      r9, r11
     add     r7, r11
-    mov.l   r11, @r10
-    mov.l   r10, @r0
+    mov.b   r11, @-r10
+    shlr8   r11
+    mov.b   r11, @-r10
+    shlr8   r11
+    mov.b   r11, @-r10
+    shlr8   r11
+    mov.b   r11, @-r10
     add     #4, r0
     bra     aslr_symbol_patch_loop
     nop
