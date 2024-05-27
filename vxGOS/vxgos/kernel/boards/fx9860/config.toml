@@ -3,9 +3,8 @@ modules = [
 
 ]
 drivers = [
-
+    'screen/t6k11',
 ]
 libraries = [
-    '-lc',
     '-lgcc',
 ]

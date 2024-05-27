@@ -119,7 +119,7 @@ static void t6k11_display_ml9801(const void *vram)
 /* expose VRAM here */
 uint8_t vram[(128 * 64) / 8];
 
-/* _bios_dupdate() : small T6K73A and ML9801A driver */
+/* _bios_dupdate() : small T6K73 and ML9801 driver */
 void _bios_dupdate(void)
 {
     extern uint8_t vram[];

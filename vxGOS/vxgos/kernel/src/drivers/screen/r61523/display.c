@@ -25,15 +25,15 @@ int r61523_frame_start(struct dsurface *surface)
     return 0;
 }
 
-/* r61523_frame_next() : next surface fragment */
-int r61523_frame_next(struct dsurface *surface)
+/* r61523_frame_frag_next() : next surface fragment */
+int r61523_frame_frag_next(struct dsurface *surface)
 {
     (void)surface;
     return -1;
 }
 
-/* r61523_frame_send() : send the fragment to screen */
-int r61523_frame_send(struct dsurface *surface)
+/* r61523_frame_frag_send() : send the fragment to screen */
+int r61523_frame_frag_send(struct dsurface *surface)
 {
     return r61523_hw_vram_send(
         surface->x1,

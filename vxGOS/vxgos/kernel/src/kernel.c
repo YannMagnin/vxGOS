@@ -40,6 +40,7 @@ void kernel_initialize(uintptr_t kernel_base_address, size_t kernel_size)
     kterm_write("[+] hypervisor bootstrapping...\n");
     // (todo) : save the current world and install all driver
 
+#if 0
     int counter = 0;
     while (true)
     {
@@ -49,6 +50,7 @@ void kernel_initialize(uintptr_t kernel_base_address, size_t kernel_size)
         }
         counter += 1;
     }
+#endif
 
     while (true) {
         __asm__ volatile ("sleep");

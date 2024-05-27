@@ -23,11 +23,11 @@ struct r61523_drv_ctx
 /* r61523_frame_start() - setup the (physical) screen and reset surface */
 extern int r61523_frame_start(struct dsurface *surface);
 
-/* r61523_frame_next() : next surface fragment */
-extern int r61523_frame_next(struct dsurface *surface);
+/* r61523_frame_frag_next() : next surface fragment */
+extern int r61523_frame_frag_next(struct dsurface *surface);
 
-/* r61523_frame_send() : send the fragment to screen */
-extern int r61523_frame_send(struct dsurface *surface);
+/* r61523_frame_frag_send() : send the fragment to screen */
+extern int r61523_frame_frag_send(struct dsurface *surface);
 
 /* r61523_frame_end() : "close" the surface */
 extern int r61523_frame_end(struct dsurface *surface);

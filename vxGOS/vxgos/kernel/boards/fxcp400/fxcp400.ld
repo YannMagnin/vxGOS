@@ -28,23 +28,22 @@ SECTIONS
     }
 
     /* force-disable constructor/destructor mechanism to avoid magical
-     * initialisation collision during boot
-     * */
+     * initialisation collision during boot */
     .ctors : { *(.ctors .ctors.*) }
     .dtors : { *(.dtors .dtors.*) }
     ASSERT(SIZEOF(.dtors) == 0, "unexpected '.dtors' entries")
     ASSERT(SIZEOF(.ctors) == 0, "unexpected '.ctors' entries")
 
     /* vhex's interrupt handler blocks (.vhex.blocks)
-       Although vhex's blocks end up in VBR space, they are relocated at
-       startup by the library/drivers, so we store them here for now */
+     * Although vhex's blocks end up in VBR space, they are relocated at
+     * startup by the library/drivers, so we store them here for now */
     .vhex.blocks : {
         KEEP(*(SORT_BY_NAME(.vhex.blocks.*)));
     }
 
     /* Exposed driver interfaces (.vhex.drivers)
-       The driver information is required to start and configure the
-       driver, even if the symbols are not referenced */
+     * The driver information is required to start and configure the
+     * driver, even if the symbols are not referenced */
     .vhex.drivers ALIGN(16) : {
         ___vhex_drivers_array_start = . ;
         KEEP(*(SORT_BY_NAME(.vhex.drivers.*)));
@@ -72,8 +71,8 @@ SECTIONS
 
     /* gloabal offset table
      * We don't want/need any GOT entries, but BFD LD insert an entry
-     * ("_DYNAMIC") into '.got', as required by ABI, and three empty entry on
-     * some architecture.
+     * ("_DYNAMIC") into '.got', as required by ABI, and three empty entry
+     * on some architecture.
      *
      * (fixme) : it seems that the compiler add a lot of information here
      * (fixme) : maybe because of the --emit-relocs */
@@ -84,32 +83,33 @@ SECTIONS
     )*/
 
     /* Vhex VBR management geometry
-
-       Due to the SH3/SH4 VBR system, we have some restrictions:
-
-         The handlers should reside at VBR relative position, in P1 or P2
-       protected space (0x8* or 0xA*). For our case, the bootloader will
-       relocalise the kernel at the P1 area using the Casio's UTLB
-       information. So, we don't have to worries about this here.
-
-         There are 3 vectors offset called by the processor : VBR + 0x100,
-       0x400 and 0x600. The first offset is involved when an exception
-       occur, the second when a memory (TLB) error is detected and the last
-       when an interruptions is detected.
-
-         All exception and memory interruption will be handled "normally" : a
-       simple handler will be involved which will try to resolve/fix the
-       problem, if nothing can be fixed, a panic screen will be displayed.
-
-         However, regarding interruptions, we will use a power-full and
-       complex technique to compact as most as possible the VBR size. To
-       explain the technique we need to know that each interruption start at
-       offset VBR + 0x600 and each interrupt source is "gapped" by 0x20 (
-       for example the 0x400 is for TMU0, 0x420 is for TMU1 and 0x440 is for
-       TMU2) Moreover, we have some "hole" in the "interruption map".
-       So, the idea is to write all interrupt handler in "blocks" of 32
-       bytes, and, for those that 32 bytes is to short, can use hole of the
-       interrupt map. */
+     *
+     * Due to the SH3/SH4 VBR system, we have some restrictions:
+     *
+     *   The handlers should reside at VBR relative position, in P1 or P2
+     * protected space (0x8* or 0xA*). For our case, the bootloader will
+     * relocalise the kernel at the P1 area using the Casio's UTLB
+     * information. So, we don't have to worries about this here.
+     *
+     *   There are 3 vectors offset called by the processor : VBR + 0x100,
+     * 0x400 and 0x600. The first offset is involved when an exception
+     * occur, the second when a memory (TLB) error is detected and the last
+     * when an interruptions is detected.
+     *
+     *   All exception and memory interruption will be handled "normally":
+     * a simple handler will be involved which will try to resolve/fix the
+     * problem, if nothing can be fixed, a panic screen will be displayed.
+     *
+     *   However, regarding interruptions, we will use a power-full and
+     * complex technique to compact as most as possible the VBR size. To
+     * explain the technique we need to know that each interruption start
+     * at offset VBR + 0x600 and each interrupt source is "gapped" by 0x20
+     * (for example the 0x400 is for TMU0, 0x420 is for TMU1 and 0x440 is
+     * for TMU2) Moreover, we have some "hole" in the "interruption map".
+     *
+     *   So, the idea is to write all interrupt handler in "blocks" of 32
+     * bytes, and, for those that 32 bytes is to short, can use hole of the
+     * interrupt map. */
     .vhex.vbr : ALIGN(4) {
 
         _vhex_vbr = . - 0x100;
@@ -129,24 +129,34 @@ SECTIONS
     /* We should place the .bss section at the end of the "userram".
      *
      * This because it seems, after multiple test, that `ld` cannot handle
-     * consistently the `.bss` section if it takes part of a single "segment"
-     * without being in an edge of it.
+     * consistently the `.bss` section if it takes part of a single
+     * "segment" without being in an edge of it.
      *
      *  +------------------+--------------+-----------+
-     *  | <vxkernel stuff> |     .bss     | .vhex.vbr |  -> .bss is not wiped
+     *  | <vxkernel stuff> |     .bss     | .vhex.vbr |  -> .bss not wiped
      *  |------------------|-----------+--+-----------+
-     *  | <vxkernel stuff> | .vhex.vbr |     .bss     |  -> .bss is wiped
+     *  | <vxkernel stuff> | .vhex.vbr |     .bss     |  -> .bss wiped
      *  +--------------+---+-----------+--+-----------+
-     *  |     .bss     | <vxkernel stuff> | .vhex.vbr |  -> .bss is wiped
+     *  |     .bss     | <vxkernel stuff> | .vhex.vbr |  -> .bss wiped
      *  +--------------+------------------+-----------+
      *
-     *  But in our case, we need to place the section at the end of the
-     *  "userram" because we use the end of the `.bss` is used for malloc
-     *  area.
-     *  We also use the start of this section as a gap for interrupt gates
-     *  mapped "on-the-fly" during the boot. This technique "de rat" allow
-     *  us to save ~3k in the final ELF. */
+     * But in our case, we need to place the section at the end of the
+     * "userram" because we use the end of the `.bss` is used for malloc
+     * area.
+     * We also use the start of this section as a gap for interrupt gates
+     * mapped "on-the-fly" during the boot. This technique "de rat" allow
+     * us to save ~3k in the final ELF. */
     .bss ALIGN(4) : {
+
+        /* set some space for interrupt gates
+         *
+         * - interruption event range is [0x400;0xfa0]
+         * - interruption granularity is 0x20 (0x400, 0x420, 0x440, ...)
+         *
+         * So, the gap for each gates will be:
+         *  (0xfa0 + 0x020) - 0x400 = 0xbc0,
+         * which give us 3008 bytes. We will use 3ko. */
+        . = . + 3072;
 
         /* bss section included to avoid missaligned segment */
         *(.bss);

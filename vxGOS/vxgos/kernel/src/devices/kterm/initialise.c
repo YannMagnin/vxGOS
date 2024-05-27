@@ -49,10 +49,10 @@ int kterm_init(void)
         return -4;
     if (_kterm.display.driver.bios.dscroll == NULL)
         return -5;
-    if (driver->hpowered != NULL && driver->hpowered() == false) {
+    if (driver->hpowered != NULL && driver->hpowered() == false)
         driver->hpoweron();
+    if (driver->configure != NULL)
         driver->configure(NULL);
-    }
     _kterm.__magic = _KTERM_INIT_MAGIC;
     kterm_clear(0x00000000);
     return 0;

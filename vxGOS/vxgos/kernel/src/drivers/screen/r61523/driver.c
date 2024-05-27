@@ -25,8 +25,8 @@ struct vxdriver drv_r61523 = {
     .internal_data = &(struct dstack_drv_interface){
         .display = {
             .frame_start        = &r61523_frame_start,
-            .frame_frag_next    = &r61523_frame_next,
-            .frame_frag_send    = &r61523_frame_send,
+            .frame_frag_next    = &r61523_frame_frag_next,
+            .frame_frag_send    = &r61523_frame_frag_send,
             .frame_end          = &r61523_frame_end,
         },
         .bios   = {

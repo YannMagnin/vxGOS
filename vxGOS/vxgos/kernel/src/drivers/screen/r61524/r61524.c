@@ -240,7 +240,12 @@ int r61524_hw_vram_send(
     return 0;
 }
 
-/* r61524_hw_vram_fetch() : dump on-screen pixels */
+/* r61524_hw_vram_fetch() : dump on-screen pixels
+ *
+ * @note
+ * - the physical driver do not update the internal VRAM counter when
+ *   reading, so, we need to perform a manual write (with the read out
+ *   pixel) to force counter update which is slow but work */
 int r61524_hw_vram_fetch(
     unsigned int x1,
     unsigned int y1,
