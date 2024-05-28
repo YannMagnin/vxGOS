@@ -63,7 +63,7 @@ int t6k11_hw_dpixel(int x, int y, int color)
 /* t6k11_hw_dscroll() : scroll the screen down to up */
 int t6k11_hw_dscroll(int offset, int fill_color)
 {
-    uint16_t *buffer;
+    uint8_t *buffer;
 
     if ((unsigned)offset >= T6K11_SCREEN_HEIGHT)
         return t6k11_hw_dclear(fill_color);
@@ -86,7 +86,7 @@ int t6k11_hw_dscroll(int offset, int fill_color)
         0,
         0,
         T6K11_SCREEN_WIDTH,
-        T6K11_SCREEN_WIDTH,
+        T6K11_SCREEN_HEIGHT,
         buffer
     );
     return 0;
@@ -100,7 +100,7 @@ int t6k11_hw_vram_send(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ) {
     return (
         (int(*)(
@@ -120,7 +120,7 @@ int t6k11_hw_vram_fetch(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ) {
     return (
         (int(*)(

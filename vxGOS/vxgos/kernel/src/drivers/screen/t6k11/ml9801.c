@@ -90,34 +90,65 @@ int ml9801_hw_dpixel(int x, int y, int color)
     return 0;
 }
 
-/* ml9801_hw_vram_send() : send the vram to the screen */
+/* ml9801_hw_vram_send() : send the vram to the screen
+ *
+ * @notes
+ * - we assum that the x1 and x2 are 8-aligned to perform a fast copy
+ *
+ * @todos
+ * - detect optimised path:
+ *   > x1=0,  x2=128
+ *   > x1=&7, x2=&7
+ * - support special geometry:
+ *   > x1!=&7, x2!=&7
+ *   > handle borders (which imply reads) and "fast" send (full byte) */
 int ml9801_hw_vram_send(
     unsigned int x1,
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ){
-    (void)x1;
-    (void)x2;
-    (void)y1;
-    (void)y2;
-    (void)vram;
-    return -1;
+    for (unsigned int y = y1 ; y < y2 ; y++)
+    {
+        _ml9801_hw_select(reg_yaddr);
+        _ml9801_hw_write(y | 0x80);
+        _ml9801_hw_select(reg_xaddr);
+        _ml9801_hw_write(4 + (x1 / 8));
+        _ml9801_hw_select(reg_data);
+        for (unsigned int x = (x1 / 8) ; x < (x2 / 8) ; x++)
+        {
+            _ml9801_hw_write(vram[0]);
+            vram = &(vram[1]);
+        }
+    }
+    return 0;
 }
 
-/* ml9801_hw_vram_fetch() : fetch "on-screen" pixels */
+/* ml9801_hw_vram_fetch() : fetch "on-screen" pixels
+ *
+ * @notes
+ * - same limitation than the send operation
+ * - same todos than the send operation */
 int ml9801_hw_vram_fetch(
     unsigned int x1,
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ){
-    (void)x1;
-    (void)x2;
-    (void)y1;
-    (void)y2;
-    (void)vram;
-    return -1;
+    for (unsigned int y = y1 ; y < y2 ; y++)
+    {
+        _ml9801_hw_select(reg_yaddr);
+        _ml9801_hw_write(y | 0x80);
+        _ml9801_hw_select(reg_xaddr);
+        _ml9801_hw_write(4 + (x1 / 8));
+        _ml9801_hw_select(reg_data);
+        for (unsigned int x = (x1 / 8) ; x < (x2 / 8) ; x++)
+        {
+            vram[0] = _ml9801_hw_read();
+            vram = &(vram[1]);
+        }
+    }
+    return 0;
 }

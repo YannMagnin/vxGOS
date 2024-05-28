@@ -24,7 +24,7 @@ extern int t6k73_hw_vram_send(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 /* t6k73_hw_vram_fetch() : fetch "on-screen" pixels */
@@ -33,7 +33,7 @@ extern int t6k73_hw_vram_fetch(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 // ML9801 primitives
@@ -50,7 +50,7 @@ extern int ml9801_hw_vram_send(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 /* ml9801_hw_vram_fetch() : fetch "on-screen" pixels */
@@ -59,7 +59,7 @@ extern int ml9801_hw_vram_fetch(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 //---
@@ -119,7 +119,7 @@ extern int t6k11_hw_vram_send(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 /* t6k11_hw_vram_fetch() : fetch "on-screen" pixels */
@@ -128,7 +128,7 @@ extern int t6k11_hw_vram_fetch(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 );
 
 #endif /* VHEX_DRIVERS_SCREEN_T6K11_H */

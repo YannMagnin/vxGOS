@@ -97,14 +97,22 @@ int t6k73_hw_vram_send(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ){
-    (void)x1;
-    (void)x2;
-    (void)y1;
-    (void)y2;
-    (void)vram;
-    return -1;
+    for (unsigned int y = y1 ; y < y2 ; y++)
+    {
+        _t6k73_hw_select(reg_yaddr);
+        _t6k73_hw_write(y | 0xc0);
+        _t6k73_hw_select(reg_xaddr);
+        _t6k73_hw_write(x1 / 8);
+        _t6k73_hw_select(reg_data);
+        for (unsigned int x = (x1 / 8) ; x < (x2 / 8) ; x++)
+        {
+            _t6k73_hw_write(vram[0]);
+            vram = &(vram[1]);
+        }
+    }
+    return 0;
 }
 
 /* t6k73_hw_vram_fetch() : fetch "on-screen" pixels */
@@ -113,12 +121,20 @@ int t6k73_hw_vram_fetch(
     unsigned int y1,
     unsigned int x2,
     unsigned int y2,
-    uint16_t *vram
+    uint8_t *vram
 ){
-    (void)x1;
-    (void)x2;
-    (void)y1;
-    (void)y2;
-    (void)vram;
-    return -1;
+    for (unsigned int y = y1 ; y < y2 ; y++)
+    {
+        _t6k73_hw_select(reg_yaddr);
+        _t6k73_hw_write(y | 0xc0);
+        _t6k73_hw_select(reg_xaddr);
+        _t6k73_hw_write(x1 / 8);
+        _t6k73_hw_select(reg_data);
+        for (unsigned int x = (x1 / 8) ; x < (x2 / 8) ; x++)
+        {
+            vram[0] = _t6k73_hw_read();
+            vram = &(vram[1]);
+        }
+    }
+    return 0;
 }

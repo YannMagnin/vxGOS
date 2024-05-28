@@ -33,14 +33,13 @@ void kernel_initialize(uintptr_t kernel_base_address, size_t kernel_size)
     kterm_write("[+] kernel information:\n");
     kterm_write("  - kernel base address\t%p\n", kernel_base_address);
     kterm_write("  - kernel size\t\t\t%d\n", kernel_size);
-    kterm_write("[+] initialising the kernel allocator...\n");
+    kterm_write("[+] init kernel allocator...\n");
     // (todo) : kernel allocator
     kterm_write("[+] early 'board' module loading...\n");
     // (todo) : load board-specific module
     kterm_write("[+] hypervisor bootstrapping...\n");
     // (todo) : save the current world and install all driver
 
-#if 0
     int counter = 0;
     while (true)
     {
@@ -50,7 +49,6 @@ void kernel_initialize(uintptr_t kernel_base_address, size_t kernel_size)
         }
         counter += 1;
     }
-#endif
 
     while (true) {
         __asm__ volatile ("sleep");
