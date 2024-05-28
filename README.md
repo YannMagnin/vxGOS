@@ -6,8 +6,8 @@
 > for a manual reset)
 >
 > Also note that I am currently rewriting a lot of the code base to unify
-> and clean critical parts. So, a lot of code (mainly in kernel source)
-> are not currently used.
+> and clean critical parts. So, a lot of the code (mainly in kernel source)
+> is not currently used.
 
 VxGOS is an operating system designed to provide a "sandbox" for prototyping
 high-level projects like games or extremely low-level projects like drivers
@@ -72,7 +72,7 @@ architectures than the 32-bit, outdated SuperH family.
 
 Also note that the fxcp400 uses my own custom firmware that allows me to
 load my kernel in memory. This custom firmware will not be released for
-legal reasons, but I am currently working on an exploit that will allow me
+legal reasons, but I am currently working on an exploit that will allow
 to run it without modifying the original firmware (not a promise here).
 
 ## How to build
@@ -102,16 +102,17 @@ device you want to:
 # list all available boards
 # @note
 # the output can look like this:
-#   -- raspi3b
 #   S- fxcg50
 #   -C fx9860
+#   -- fxcp400
 # the two dashes that can be "S" for Selected and "C" Configured
 vxsdk board list
 
 # initialise the device
 # @note
 # > If you perform the previous step, you will notify that the "S" has been
-#   added to the board line
+#   moved to the "fxcg50" board line, which indicate that the board is
+#   selected
 vxsdk board select fxcg50
 
 # build the kernel (it will build the current selected board)
@@ -132,4 +133,4 @@ will not cover these parts here.
 ## Special thanks
 
 A big thanks to [Lephenixnoir](https://silent-tower.net/research/) who
-helped me and allowing me to temporarily use its `kmalloc` implementation !
+helped me a lot and allowing me to use its `kmalloc` implementation !
