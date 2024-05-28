@@ -66,11 +66,11 @@ quickly test the project on real hardware.
 Some tests have been performed on the `RaspBerryPi 3b` device, but since
 this device is badly documented and relies on proprietary firmware in its
 GPU, I probably will never support this device (maybe committing to
-`BananaPi`, which is a clone using a documented ARMv7 processor). However,
+`BananaPi`, which is a clone using a documented `ARMv7` processor). However,
 these experiences have confirmed that the kernel can support other
 architectures than the 32-bit, outdated SuperH family.
 
-Also note that the fxcp400 uses my own custom firmware that allows me to
+Also note that the `fxcp400` uses my own custom firmware that allows me to
 load my kernel in memory. This custom firmware will not be released for
 legal reasons, but I am currently working on an exploit that will allow
 to run it without modifying the original firmware (not a promise here).
