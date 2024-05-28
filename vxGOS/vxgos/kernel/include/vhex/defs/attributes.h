@@ -15,6 +15,8 @@
 #define VUNUSED             __attribute__((unused))
 /* Functions that *must* be inlined */
 #define VINLINE             __attribute__((always_inline)) inline
+/* Allow symbols to remain visible outside the current compilation unit */
+#define VVISIBLE            __attribute__((externally_visible))
 
 /* Aligned variables */
 #define VALIGNED(x)         __attribute__((aligned(x)))

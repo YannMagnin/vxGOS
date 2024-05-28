@@ -13,7 +13,9 @@ struct vhex_module
 
 /* VHEX_DECLARE_MODULE() : Declare a kernel module */
 #define VHEX_DECLARE_MODULE(level, name) \
-    VSECTION(".vhex.modules." #level) extern struct vhex_module name;
+    VVISIBLE                             \
+    VSECTION(".vhex.modules." #level)    \
+    extern struct vhex_module name;
 
 
 //---

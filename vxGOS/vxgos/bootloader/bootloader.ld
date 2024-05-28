@@ -32,7 +32,7 @@ SECTIONS
     /* registered bootloader commands */
     .bootloader_cmd ALIGN(16) : {
         ___bootloader_cmd_array_start = . ;
-        *(.bootloader_cmd)
+        KEEP(*(.bootloader_cmd));
         ___bootloader_cmd_array_end = . ;
     }
 

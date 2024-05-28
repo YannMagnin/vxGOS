@@ -1,9 +1,13 @@
 > [!CAUTION]
-> This project is only experimental for now and I do not plan to fully commit
-> into it since this is just a long-term background task to me. Moreover,
-> there is (at the time I writing this) nothing to show or tests for now
-> (the kernel build, start, display some debug information and wait for a
-> manual reset)
+> This project is only experimental for now and I do not plan to fully
+> commit into it since this is just a long-term background task to me.
+> Moreover, there is (at the time I writing this) nothing to show or tests
+> for now (the kernel build, start, display some debug information and wait
+> for a manual reset)
+>
+> Also note that I am currently rewriting a lot of the code base to unify
+> and clean critical parts. So, a lot of code (mainly in kernel source)
+> are not currently used.
 
 VxGOS is an operating system designed to provide a "sandbox" for prototyping
 high-level projects like games or extremely low-level projects like drivers
@@ -65,6 +69,11 @@ GPU, I probably will never support this device (maybe committing to
 `BananaPi`, which is a clone using a documented ARMv7 processor). However,
 these experiences have confirmed that the kernel can support other
 architectures than the 32-bit, outdated SuperH family.
+
+Also note that the fxcp400 uses my own custom firmware that allows me to
+load my kernel in memory. This custom firmware will not be released for
+legal reasons, but I am currently working on an exploit that will allow me
+to run it without modifying the original firmware (not a promise here).
 
 ## How to build
 

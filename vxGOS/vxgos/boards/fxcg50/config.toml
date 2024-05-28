@@ -10,14 +10,16 @@ cflags      = [
     '-ffreestanding',
     '-nostdlib',
     '-fPIE',
-    '-O3',
+    '-Os',
     '-mb',
     '-m4-nofpu',
     '-Wa,--dsp',
     '-fstrict-volatile-bitfields',
     '-fanalyzer',
+    '-flto',
 ]
 ldflags     = [
+    '-flto',
     '-static',
     '-Wl,-Map=map',
     '-Wl,--build-id=none',

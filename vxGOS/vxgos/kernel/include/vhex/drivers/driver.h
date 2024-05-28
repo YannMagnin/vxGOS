@@ -78,7 +78,7 @@ struct vxdriver
  * in the section name and the linker then sorts by name. If your driver has
  * a level lower than 10, you must add a leading 0 (e.g "09" or "02"). */
 #define VHEX_DECLARE_DRIVER(level, name) \
-    VSECTION(".vhex.drivers." #level) extern struct vxdriver name;
+    VVISIBLE VSECTION(".vhex.drivers." #level) extern struct vxdriver name;
 
 // driver abstraction
 

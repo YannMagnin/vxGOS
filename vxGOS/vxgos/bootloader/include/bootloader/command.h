@@ -15,6 +15,7 @@ struct bootloader_cmd
 
 /* VCMD_DECLARE() : declare bootloader command */
 #define VCMD_DECLARE(name, ...)                 \
+    __attribute__((externally_visible))         \
     __attribute__((section(".bootloader_cmd"))) \
     struct bootloader_cmd name = {              \
         __VA_ARGS__                             \

@@ -14,7 +14,7 @@
  * - the VRAM is defined in driver specific (t6k11.c) */
 int t6k11_frame_start(struct dsurface *surface)
 {
-    extern void *t6k11_vram;
+    extern uint32_t t6k11_vram[((128 * 64) / 8) / 4];
 
     surface->vram   = t6k11_vram;
     surface->width  = T6K11_SCREEN_WIDTH;
