@@ -1,0 +1,64 @@
+name: 'vxGOS CI'
+on: [push]
+jobs:
+  pre-ci:
+    runs-on: ubuntu-latest
+    container:
+        image: 'docker://yatis/vxgos:latest'
+    steps:
+      - name: 'checkout the codebase'
+        uses: actions/checkout@v4
+      - name: 'Setup a local virtual environment'
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - name: 'define a cache for the virtual environment'
+        uses: actions/cache@v4
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: 'install the project dependencies'
+        run: poetry install
+      - name: 'check codebase'
+        run: |
+          poetry run pylint --errors-only vxGOS/vxsdk
+          poetry run mypy --strict vxGOS/vxsdk
+
+  build-ci:
+    needs: [pre-ci]
+    runs-on: ubuntu-latest
+    container:
+        image: 'docker://yatis/vxgos:latest'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: 'build fxcp400 image'
+        run: |
+          poetry run vxsdk board select fxcp400
+          poetry run vxsdk board build
+      - name: 'build fxcg50 image'
+        run: |
+          poetry run vxsdk board select fxcg50
+          poetry run vxsdk board build
+      - name: 'build fx9860'
+        run: |
+          poetry run vxsdk board select fx9860
+          poetry run vxsdk board build
+      - name: 'upload fxcp400 artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vxgos_fxcp400.img
+          path: ./.vxsdk/fxcp400/vxgos.img
+      - name: 'upload fxcg50 artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vxgos_fxcg50.g3a
+          path: ./.vxsdk/fxcg50/vxgos.g3a
+      - name: 'upload fx9860 artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vxgos_fx9860.g1a
+          path: ./.vxsdk/fx9860/vxgos.g1a

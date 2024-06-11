@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = 'vxGOS'
-version     = '0.0.11'
+version     = '0.0.12'
 description = 'Vhex operating system oriented game creation'
 repository  = 'https://github.com/YannMagnin/vxGOS.git'
 readme      = 'README.md'
@@ -20,9 +20,9 @@ vxconv  = 'vxsdk.cli.converter:vxsdk_cli_converter_entry'
 
 [tool.poetry.dependencies]
 python          = '>=3.11'
-click           = "8.1.*"
+click           = "8.*"
 toml            = "0.10.*"
-pillow          = "10.2.*"
+pillow          = "10.*"
 types-toml      = "*"
 types-pillow    = "*"
 
